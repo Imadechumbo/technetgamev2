@@ -13,16 +13,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: "20.x"
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
       - run: npm run vitals:validate
       - run: npm run contract:validate
       - run: python safe_update.py --project technetgame --mode full --env prod || true
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
