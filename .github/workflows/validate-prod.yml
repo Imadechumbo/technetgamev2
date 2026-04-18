@@ -1,0 +1,33 @@
+name: TechNetGame Validate Production
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run vitals:validate
+      - run: npm run contract:validate
+      - run: python safe_update.py --project technetgame --mode full --env prod || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: technetgame-validate-prod-${{ github.run_number }}
+          path: |
+            reports/json/**
+            reports/release_gate_report.*
+            logs/**

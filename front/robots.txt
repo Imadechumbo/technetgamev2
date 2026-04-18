@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.technetgame.com.br/sitemap.xml
+
+# AdSense
+# ads.txt disponível em https://www.technetgame.com.br/ads.txt

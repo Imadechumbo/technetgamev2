@@ -1,0 +1,1 @@
+{ "base_url":"https://technetgame.com.br","viewport":{"width":1440,"height":2200},"pages":[{"name":"home","path":"/"},{"name":"relatorios","path":"/relatorios/"},{"name":"technet-ai","path":"/technet-ai/"}],"thresholds":{"warn_diff_pct":0.4,"fail_diff_pct":1.2},"stabilization":{"wait_until":"networkidle","extra_wait_ms":1800}}

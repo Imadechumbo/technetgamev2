@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-04-17T02:41:14.381Z",
+  "status": "PASS",
+  "pages": [
+    {
+      "name": "home",
+      "status": "PASS",
+      "mismatch_pixels": 1239,
+      "diff_pct": 0.008
+    },
+    {
+      "name": "relatorios",
+      "status": "PASS",
+      "mismatch_pixels": 2666,
+      "diff_pct": 0.017
+    },
+    {
+      "name": "technet-ai",
+      "status": "PASS",
+      "mismatch_pixels": 2861,
+      "diff_pct": 0.019
+    }
+  ],
+  "summary": {
+    "max_diff_pct": 0.019,
+    "warn_threshold": 0.4,
+    "fail_threshold": 1.2
+  }
+}

@@ -1,0 +1,151 @@
+name: TechNetGame V2.14 Auto Deploy + Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_track:
+        description: "Tipo de release"
+        required: true
+        default: "front-only"
+        type: choice
+        options:
+          - front-only
+          - back-only
+          - full
+      stable_front_zip_path:
+        description: "Caminho do ZIP estável do frontend no repositório"
+        required: false
+        default: "stable-release-artifacts/STABLE_FRONT.zip"
+      post_deploy_stabilize_seconds:
+        description: "Janela de estabilização pós-deploy"
+        required: false
+        default: "45"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: technetgame-release-prod
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RELEASE_TRACK: ${{ inputs.release_track }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_EB_APPLICATION: ${{ vars.AWS_EB_APPLICATION }}
+      AWS_EB_ENVIRONMENT: ${{ vars.AWS_EB_ENVIRONMENT }}
+      AWS_S3_DEPLOY_BUCKET: ${{ vars.AWS_S3_DEPLOY_BUCKET }}
+      BACKEND_VERSION_LABEL: tg-${{ github.run_number }}-${{ github.sha }}
+      STABLE_BACKEND_APP_VERSION_LABEL: ${{ vars.STABLE_BACKEND_APP_VERSION_LABEL }}
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+      POST_DEPLOY_STABILIZE_SECONDS: ${{ inputs.post_deploy_stabilize_seconds }}
+      STABLE_FRONT_ZIP_PATH: ${{ inputs.stable_front_zip_path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install npm deps
+        run: npm ci
+
+      - name: Install Wrangler
+        if: ${{ inputs.release_track == 'front-only' || inputs.release_track == 'full' }}
+        run: npm install --no-save wrangler
+
+      - name: Configure AWS credentials
+        if: ${{ inputs.release_track == 'back-only' || inputs.release_track == 'full' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Preflight gate (baseline atual)
+        run: |
+          npm run contract:validate
+          python safe_update.py --project technetgame --mode full --env prod || true
+
+      - name: Deploy frontend to Cloudflare Pages
+        if: ${{ inputs.release_track == 'front-only' || inputs.release_track == 'full' }}
+        run: |
+          npx wrangler pages deploy ./frontend \
+            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
+            --branch main
+
+      - name: Purge Cloudflare after frontend deploy
+        if: ${{ inputs.release_track == 'front-only' || inputs.release_track == 'full' }}
+        run: python scripts/purge_cloudflare_cache.py
+
+      - name: Build backend bundle
+        if: ${{ inputs.release_track == 'back-only' || inputs.release_track == 'full' }}
+        run: python scripts/build_backend_bundle.py --source backend --output dist/backend-release.zip
+
+      - name: Deploy backend to AWS Elastic Beanstalk
+        if: ${{ inputs.release_track == 'back-only' || inputs.release_track == 'full' }}
+        run: python scripts/deploy_backend_eb.py --bundle dist/backend-release.zip
+
+      - name: Wait stabilize window
+        run: sleep "$POST_DEPLOY_STABILIZE_SECONDS"
+
+      - name: Post-deploy full validation
+        id: validate_after_deploy
+        run: |
+          npm run vitals:validate
+          npm run contract:validate
+          python safe_update.py --project technetgame --mode full --env prod
+          python scripts/assert_release_pass.py
+
+      - name: Rollback frontend to stable ZIP
+        if: failure() && (inputs.release_track == 'front-only' || inputs.release_track == 'full')
+        run: |
+          rm -rf .rollback_front
+          mkdir -p .rollback_front
+          python - <<'PY'
+          from zipfile import ZipFile
+          from pathlib import Path
+          src = Path('${{ inputs.stable_front_zip_path }}')
+          if not src.exists():
+              raise SystemExit(f'STABLE_FRONT_ZIP ausente: {src}')
+          with ZipFile(src, 'r') as zf:
+              zf.extractall('.rollback_front')
+          PY
+          npx wrangler pages deploy ./.rollback_front --project-name "$CLOUDFLARE_PAGES_PROJECT" --branch main
+          python scripts/purge_cloudflare_cache.py
+
+      - name: Rollback backend to stable app version
+        if: failure() && (inputs.release_track == 'back-only' || inputs.release_track == 'full')
+        run: python scripts/rollback_backend_eb.py
+
+      - name: Validate rollback state
+        if: failure()
+        run: |
+          sleep 30
+          npm run contract:validate
+          python safe_update.py --project technetgame --mode full --env prod || true
+
+      - name: Upload reports artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: technetgame-release-reports-${{ github.run_number }}
+          path: |
+            reports/json/**
+            reports/release_gate_report.*
+            logs/**

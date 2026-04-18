@@ -1,0 +1,9 @@
+{
+  "project": "technetgame",
+  "env": "prod",
+  "decision": "PASS",
+  "generated_at": "2026-04-16T23:41:31-0300",
+  "frontend_root": "https://technetgame.com.br",
+  "api_health": "https://api.technetgame.com.br/api/health",
+  "aws_eb_health": "http://Technetgame-env-1.eba-b2tbc5hk.us-east-1.elasticbeanstalk.com/api/health"
+}

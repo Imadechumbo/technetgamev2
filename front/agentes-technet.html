@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conheça nossos agentes TechNet</title>
+<link rel="icon" href="assets/img/og-cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css?v=20260410-v870-final">
+<link rel="stylesheet" href="assets/css/forum-community.css?v=20260410-v870-final">
+<style>
+.agentes-mobile-hero-chart__title-center{display:none}
+.agentes-mobile-hero-chart__bar-touch{display:none}
+.agentes-mobile-hero-chart{display:none}
+@media (max-width: 768px){
+  .agentes-mobile-hero-chart{display:block}
+  .topbar{display:none}
+  .agentes-mobile-hero-chart{padding-top:18px}
+  .agentes-mobile-hero-chart__panel{padding:22px 16px 18px}
+  .agentes-mobile-hero-chart__kicker,
+  .agentes-mobile-hero-chart h1,
+  .agentes-mobile-hero-chart>div>.agentes-mobile-hero-chart__panel>p{display:none}
+  .agentes-mobile-hero-chart__panel p{display:none}
+  .agentes-mobile-hero-chart__title-center{
+    display:block;
+    margin:0 0 18px;
+    text-align:center;
+    font-size:clamp(1.45rem,6vw,1.95rem);
+    line-height:1.12;
+    font-weight:900;
+    color:#f2fbf8;
+    text-wrap:balance;
+  }
+  .agentes-mobile-hero-chart__bars{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px 12px;
+    align-items:end;
+  }
+  .agentes-mobile-hero-chart__bar{
+    min-width:0;
+    align-items:center;
+    text-align:center;
+  }
+  .agentes-mobile-hero-chart__bar strong{
+    font-size:1.05rem;
+    margin-bottom:8px;
+  }
+  .agentes-mobile-hero-chart__bar i{
+    width:62px;
+    height:128px;
+    border-radius:28px;
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 30px rgba(0,0,0,.26);
+  }
+  .agentes-mobile-hero-chart__bar-touch{
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    width:100%;
+    height:100%;
+    padding-bottom:10px;
+  }
+  .agentes-mobile-hero-chart__bar-touch img{
+    width:38px;
+    height:38px;
+    object-fit:contain;
+    opacity:.96;
+    position:relative;
+    z-index:3;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.34)) drop-shadow(0 0 8px rgba(255,255,255,.14));
+    animation:agentFloat 3.2s ease-in-out infinite;
+    transition:transform .22s ease, filter .22s ease, opacity .22s ease;
+    will-change:transform, filter;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+  .agentes-mobile-hero-chart__bar.is-touching .agentes-mobile-hero-chart__bar-touch img,
+  .agentes-mobile-hero-chart__bar:active .agentes-mobile-hero-chart__bar-touch img{
+    transform:translateY(-10px) scale(1.18);
+    opacity:1;
+    filter:drop-shadow(0 0 14px rgba(100,255,210,.8)) drop-shadow(0 10px 22px rgba(0,0,0,.36));
+  }
+  .agentes-mobile-hero-chart__bar:active i,
+  .agentes-mobile-hero-chart__bar.is-touching i{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 2px rgba(100,255,210,.18),0 16px 34px rgba(0,0,0,.28);
+  }
+  .agentes-mobile-hero-chart__bar span{margin-top:10px;font-size:1rem;line-height:1.15}
+  .agentes-mobile-hero-chart__bar small{font-size:.84rem;margin-top:6px}
+  .section-block.container{display:none}
+}
+@media (min-width: 769px){
+  .agentes-mobile-hero-chart{display:none!important}
+  .agentes-mobile-hero-chart__title-center{display:none!important}
+  .agentes-mobile-hero-chart__bar-touch{display:none!important}
+  .section-block.container{display:block!important}
+}
+@keyframes agentFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="container topbar-inner"><div>Mini agents TechNet • versão mobile</div><div class="topbar-links"><a href="relatorios.html">Relatórios</a></div></div></div>
+<main class="unified-news-shell">
+<section class="agentes-mobile-hero-chart">
+  <div class="container">
+    <div class="agentes-mobile-hero-chart__panel">
+      <span class="agentes-mobile-hero-chart__kicker">Benchmark por agente</span>
+      <h1>Leitura visual do conselho</h1>
+      <p>Cada cor representa um agente avaliando o mesmo tema. Versão leve para celular com mini agents estilo smile.</p>
+      <h2 class="agentes-mobile-hero-chart__title-center">Conheça nossos agentes TechNet</h2>
+      <div class="agentes-mobile-hero-chart__bars">
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--ai">
+          <strong>100%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/analista-ia.png" alt="Analista IA"></span></i>
+          <span>IA &amp; Dados</span>
+          <small>Peso 1.24x</small>
+        </article>
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--games">
+          <strong>100%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/especialista-games.png" alt="Especialista Games"></span></i>
+          <span>Jogos</span>
+          <small>Peso 1.18x</small>
+        </article>
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--hardware">
+          <strong>95%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/especialista-hardware.png" alt="Especialista Hardware"></span></i>
+          <span>Hardware</span>
+          <small>Peso 1.28x</small>
+        </article>
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--tech">
+          <strong>93%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/analista-tecnico.png" alt="Analista Técnico"></span></i>
+          <span>Tecnologia</span>
+          <small>Peso 1.20x</small>
+        </article>
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--market">
+          <strong>91%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/analista-mercado.png" alt="Analista Mercado"></span></i>
+          <span>Empresas</span>
+          <small>Peso 1.14x</small>
+        </article>
+        <article class="agentes-mobile-hero-chart__bar agentes-mobile-hero-chart__bar--security">
+          <strong>80%</strong>
+          <i><span class="agentes-mobile-hero-chart__bar-touch"><img src="assets/img/openclaw-agents/especialista-seguranca.png" alt="Especialista Segurança"></span></i>
+          <span>Segurança</span>
+          <small>Peso 1.10x</small>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section-block container">
+  <div class="section-head"><div><span class="section-kicker">Conheça nossos agentes TechNet</span><h2 class="section-title">Mini agents estilo smile</h2><p class="section-subtitle">Versão compacta pensada para celular, sem poluir a experiência do home.</p></div></div>
+  <div class="hermes-meeting__mobile-smiles" style="gap:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));">
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Analista IA"><img src="assets/img/openclaw-agents/analista-ia.png" alt="Analista IA"></a>
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Especialista Games"><img src="assets/img/openclaw-agents/especialista-games.png" alt="Especialista Games"></a>
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Especialista Hardware"><img src="assets/img/openclaw-agents/especialista-hardware.png" alt="Especialista Hardware"></a>
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Analista Mercado"><img src="assets/img/openclaw-agents/analista-mercado.png" alt="Analista Mercado"></a>
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Analista Técnico"><img src="assets/img/openclaw-agents/analista-tecnico.png" alt="Analista Técnico"></a>
+    <a class="hermes-meeting__mobile-smile" href="relatorios.html" title="Especialista Segurança"><img src="assets/img/openclaw-agents/especialista-seguranca.png" alt="Especialista Segurança"></a>
+  </div>
+</section>
+</main>
+<script src="assets/js/runtime-config.js?v=20260410-v870-final"></script>
+<script src="assets/js/config.js?v=20260410-v870-final"></script>
+<script src="assets/js/main.js?v=20260410-v870-final"></script>
+<script>
+(function(){
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    document.querySelectorAll('.agentes-mobile-hero-chart__bar').forEach(function(bar){
+      var timer;
+      var on = function(){
+        bar.classList.add('is-touching');
+        clearTimeout(timer);
+        timer = setTimeout(function(){ bar.classList.remove('is-touching'); }, 260);
+      };
+      bar.addEventListener('touchstart', on, {passive:true});
+      bar.addEventListener('click', on);
+    });
+  }
+})();
+</script>
+</body>
+</html>

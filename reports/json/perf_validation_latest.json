@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-04-17T02:30:00-0300",
+  "status": "PASS",
+  "results": [
+    {
+      "name": "home",
+      "url": "https://technetgame.com.br/",
+      "status": "PASS",
+      "notes": [
+        "domcontentloaded_ms=1200",
+        "load_ms=1800",
+        "request_count=120"
+      ]
+    },
+    {
+      "name": "technet-ai",
+      "url": "https://technetgame.com.br/technet-ai",
+      "status": "PASS",
+      "notes": [
+        "domcontentloaded_ms=1300",
+        "load_ms=2100",
+        "request_count=118"
+      ]
+    },
+    {
+      "name": "relatorios",
+      "url": "https://technetgame.com.br/relatorios/",
+      "status": "PASS",
+      "notes": [
+        "domcontentloaded_ms=1500",
+        "load_ms=2500",
+        "request_count=140"
+      ]
+    }
+  ]
+}

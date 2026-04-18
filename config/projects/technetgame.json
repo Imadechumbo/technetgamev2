@@ -1,0 +1,82 @@
+{
+  "name": "technetgame",
+  "project_root": "../technetgame-v9.4-backend-nginx-clean",
+  "urls": {
+    "frontend_root": "https://technetgame.com.br",
+    "frontend_www": "https://www.technetgame.com.br",
+    "api_health": "https://api.technetgame.com.br/api/health",
+    "aws_eb_health": "http://Technetgame-env-1.eba-b2tbc5hk.us-east-1.elasticbeanstalk.com/api/health"
+  },
+  "release": {
+    "root": "release",
+    "required_files": [
+      "CHANGE_REQUEST.md",
+      "SPEC.md",
+      "TEST_PLAN.md",
+      "ROLLBACK_PLAN.md"
+    ],
+    "allowed_tracks": [
+      "FRONT MOBILE",
+      "BACKEND",
+      "INTEGRAÇÃO",
+      "DEPLOY"
+    ],
+    "manifest": "reports/json/release_manifest.json",
+    "history": "reports/json/release_history.json"
+  },
+  "snapshot": {
+    "enabled": true,
+    "frontend": {
+      "root_env": "FRONTEND_SNAPSHOT_ROOT",
+      "s3_bucket_env": "SNAPSHOT_S3_BUCKET",
+      "s3_prefix": "technetgame/frontend"
+    },
+    "backend": {
+      "root_env": "BACKEND_SNAPSHOT_ROOT",
+      "s3_bucket_env": "SNAPSHOT_S3_BUCKET",
+      "s3_prefix": "technetgame/backend"
+    }
+  },
+  "post_deploy_validation": {
+    "enabled": true,
+    "max_wait_seconds": 300,
+    "poll_interval_seconds": 15
+  },
+  "contracts": [
+    {
+      "name": "api_health_contract",
+      "url": "https://api.technetgame.com.br/api/health",
+      "required_fields": {
+        "ok": "boolean",
+        "status": "string",
+        "service": "string",
+        "environment": "string",
+        "generatedAt": "string",
+        "cacheAgeSec": "number",
+        "categories": "object"
+      },
+      "expected_values": {
+        "ok": true,
+        "status": "ok"
+      }
+    }
+  ],
+  "release_orchestrator": {
+    "enabled": true,
+    "post_deploy_stabilize_seconds": 45,
+    "smoke_urls": {
+      "technet_ai": "https://technetgame.com.br/technet-ai",
+      "relatorios": "https://technetgame.com.br/relatorios/"
+    },
+    "hard_rollback_rules": [
+      "frontend_root != 200",
+      "technet_ai != 200",
+      "relatorios != 200",
+      "api_health != 200",
+      "contract == FAIL",
+      "runtime_errors > 0",
+      "ReferenceError",
+      "CORS preflight FAIL"
+    ]
+  }
+}

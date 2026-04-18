@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="55%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="34" fill="url(#g)"/>
+  <circle cx="1110" cy="120" r="120" fill="white" fill-opacity="0.08"/>
+  <circle cx="140" cy="540" r="92" fill="white" fill-opacity="0.07"/>
+  <rect x="72" y="78" width="310" height="26" rx="13" fill="rgba(0,0,0,0.18)"/>
+  <text x="72" y="96" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="white">TechNetGame • Especial Jogos</text>
+  <text x="72" y="268" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="800" fill="white"><tspan x="72" dy="0">Halo: Campanha</tspan><tspan x="72" dy="54">Evoluída</tspan></text>
+  <text x="72" y="470" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="500" fill="rgba(255,255,255,0.9)">Campanha mais guiada e IA reforçada</text>
+  <rect x="72" y="550" width="118" height="46" rx="23" fill="rgba(0,0,0,0.28)"/>
+  <text x="99" y="581" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="white">2026</text>
+  <text x="72" y="640" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="rgba(255,255,255,0.92)">XBOX</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">Clair Obscur Expedition 33</title>
+<desc id="desc">Capa editorial placeholder de Clair Obscur Expedition 33</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#193fb2"/>
+    <stop offset="55%" stop-color="#2d4fd1"/>
+    <stop offset="100%" stop-color="#102970"/>
+  </linearGradient>
+</defs>
+<rect width="1280" height="720" fill="url(#bg)"/>
+<circle cx="1100" cy="156" r="138" fill="#ffffff" fill-opacity="0.08"/>
+<circle cx="172" cy="530" r="112" fill="#ffffff" fill-opacity="0.08"/>
+<g fill="#fff">
+  <text x="84" y="156" font-family="Roboto, Arial, sans-serif" font-size="32" font-weight="700" opacity="0.92">TechNetGame • Especial Jogos</text>
+  <text x="84" y="340" font-family="Roboto, Arial, sans-serif" font-size="76" font-weight="900">Clair Obscur: Expedition 33</text>
+  <text x="84" y="418" font-family="Roboto, Arial, sans-serif" font-size="34" opacity="0.86">GOTY 2025 e referência de ambição criativa recente</text>
+</g>
+</svg>

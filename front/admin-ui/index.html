@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechNet AI — Command Center | TechNetGame</title>
+  <meta name="description" content="TechNet AI Command Center com multiagentes, smiles inteligentes e streaming em tempo real para testes e uso editorial do TechNetGame.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.technetgame.com.br/technet-ai/">
+  <meta property="og:title" content="TechNet AI — Command Center | TechNetGame">
+  <meta property="og:description" content="Assistente multiagente do TechNetGame com streaming em tempo real, OpenClaw e smiles inteligentes.">
+  <meta property="og:url" content="https://www.technetgame.com.br/technet-ai/">
+  <meta property="og:type" content="website">
+  <style>
+    :root{
+      --bg:#071311;--panel:#0b1715;--panel-2:#0d1f1a;--line:#163a31;--text:#ebfff8;--muted:#8eb4a8;--accent:#41e3a7;--accent-soft:rgba(65,227,167,.12);
+    }
+    *{box-sizing:border-box}
+
+    *{scrollbar-color:rgba(65,227,167,.22) transparent}
+    *::-webkit-scrollbar{width:12px;height:12px}
+    *::-webkit-scrollbar-track{background:transparent}
+    *::-webkit-scrollbar-thumb{background:rgba(65,227,167,.22);border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(circle at top,#0b1c18 0,#071311 48%,#04100e 100%);color:var(--text);overflow:hidden;scrollbar-color:rgba(65,227,167,.22) transparent;scrollbar-width:thin}
+    button,input,textarea,select{font:inherit}
+    a{color:#91ffd6;text-decoration:none}
+    .layout{display:grid;grid-template-columns:280px 1fr;height:100vh;min-height:100vh;overflow:hidden}
+    .sidebar{background:rgba(8,17,15,.97);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;min-height:0;scrollbar-color:rgba(65,227,167,.22) transparent;scrollbar-width:thin}
+    .side-top{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,.03)}
+    .brand{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800;letter-spacing:.01em}
+    .brand img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(65,227,167,.55))}
+    .top-tools{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+    .collapseBtn,.ghostIcon{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:#cffff0;cursor:pointer}
+    .nav-scroll{flex:1;min-height:0;overflow-y:scroll !important;overflow-x:hidden;padding:12px 10px 14px;scrollbar-gutter:stable;scrollbar-width:thin}
+    .nav-scroll::-webkit-scrollbar{width:10px}
+    .nav-scroll::-webkit-scrollbar-track{background:transparent}
+    .nav-scroll::-webkit-scrollbar-thumb{background:rgba(65,227,167,.18);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+    .newChatBtn{width:100%;display:flex;align-items:center;gap:10px;padding:14px 14px;border:none;border-radius:16px;background:var(--accent);color:#03251b;font-weight:800;cursor:pointer;margin-bottom:12px}
+    .navGroup{display:grid;gap:4px;margin-bottom:14px}
+    .navItem{display:flex;align-items:center;gap:12px;padding:12px 12px;border-radius:14px;color:#effff9;border:1px solid transparent;cursor:pointer}
+    .navItem:hover,.navItem.active{background:#0c1b18;border-color:var(--line)}
+    .navItem .icon{width:20px;text-align:center;opacity:.92}.navItem .icon.icon-img{display:inline-flex;align-items:center;justify-content:center}.navItem .icon.icon-img img{width:18px;height:18px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(65,227,167,.18))}
+    .sectionTitle{padding:12px 12px 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .historyList{display:grid;gap:6px}
+    .historyBtn{width:100%;text-align:left;background:transparent;color:#e9fff7;border:1px solid transparent;border-radius:14px;padding:12px 12px;cursor:pointer}
+    .historyBtn:hover,.historyBtn.active{background:#0d1c19;border-color:var(--line)}
+    .historyBtn .small{display:block;margin-top:4px;font-size:11px;color:var(--muted)}
+    .accountCard{margin-top:14px;padding:14px;border:1px solid var(--line);background:#0a1715;border-radius:18px;display:grid;gap:10px}
+    .memoryCard{margin-top:12px;padding:12px;border:1px solid rgba(65,227,167,.14);background:rgba(65,227,167,.05);border-radius:16px;display:grid;gap:8px}
+    .memoryRow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#dffef2}
+    .memoryList{display:grid;gap:6px}
+    .memoryTag{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(65,227,167,.08);border:1px solid rgba(65,227,167,.12);font-size:11px;color:#dffef2;margin:2px 4px 0 0}
+    .memoryActions{display:flex;gap:8px;flex-wrap:wrap}
+    .memoryBtn{padding:9px 10px;border-radius:12px;border:1px solid rgba(65,227,167,.16);background:#0e2420;color:#dffef2;font-size:12px;font-weight:700;cursor:pointer}
+    .accountEmail{font-size:13px;word-break:break-word}
+    .main{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;min-height:0;height:100vh}
+    .header{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:rgba(8,17,15,.72);backdrop-filter:blur(12px)}
+    .headerTitle{font-size:32px;font-weight:800}
+    .headerSub{margin-top:6px;color:var(--muted)}
+    .headerActions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .btnHome{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid rgba(65,227,167,.18);background:rgba(65,227,167,.08);color:#cffff0;font-weight:700;transition:transform .18s ease,background .18s ease,border-color .18s ease}
+    .btnHome:hover{transform:translateY(-1px);background:rgba(65,227,167,.14);border-color:rgba(65,227,167,.3)}
+    .messages{padding:24px 28px 170px;min-height:0;height:100%;overflow-y:scroll !important;overflow-x:hidden;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;scrollbar-gutter:stable both-edges;scrollbar-width:thin}
+    .messages::-webkit-scrollbar{width:12px}.messages::-webkit-scrollbar-track{background:transparent}.messages::-webkit-scrollbar-thumb{background:rgba(65,227,167,.22);border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+
+    .messages{position:relative;padding-right:250px}
+    .agentStage{position:fixed;top:118px;right:26px;width:224px;height:336px;z-index:60;pointer-events:none;overflow:hidden}
+    .agentStage::before{content:"";position:absolute;inset:12px;border-radius:26px;background:radial-gradient(circle at 50% 35%,rgba(65,227,167,.07),transparent 58%),radial-gradient(circle at 50% 80%,rgba(88,190,255,.04),transparent 42%);opacity:.8;filter:blur(4px)}
+    .agentStage::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,18,16,0),rgba(7,18,16,.08) 45%,rgba(7,18,16,.18));mask-image:radial-gradient(circle at center, black 56%, transparent 92%);-webkit-mask-image:radial-gradient(circle at center, black 56%, transparent 92%)}
+    .agentStagePanel{position:relative;width:100%;height:100%;background:transparent;border:none;box-shadow:none;padding:0;backdrop-filter:none}
+    .agentStageTitle{display:none}
+    .agentGrid{position:relative;width:100%;height:100%;display:block;isolation:isolate}
+    .agentGrid::before{content:"";position:absolute;inset:18px 26px 44px 26px;border-radius:28px;background:radial-gradient(circle,rgba(65,227,167,.035),transparent 70%);opacity:.85;filter:blur(12px)}
+    .agentOrb{--driftX:10px;--driftY:-12px;--orbRotate:0deg;position:absolute;left:50%;top:50%;width:112px;transform:translate(-50%,-50%) scale(.7) rotate(var(--orbRotate));opacity:0;filter:blur(10px);transition:opacity .42s ease,filter .42s ease,left .42s cubic-bezier(.22,1,.36,1),top .42s cubic-bezier(.22,1,.36,1);will-change:transform,left,top,opacity;pointer-events:none}
+    .agentOrb.show{opacity:1;filter:blur(0);animation:agentEntrance .62s cubic-bezier(.22,1,.36,1), orbHover 4.8s ease-in-out infinite .56s}
+    .agentOrb.show .agentFace{animation:faceFloatPremium 4.1s ease-in-out infinite .4s, faceGlow 2s ease-in-out infinite}
+    .agentOrb.state-busy .agentFace{animation:agentPulse 1.12s ease-in-out infinite, faceFloatPremium 3.6s ease-in-out infinite, faceGlow 1.05s ease-in-out infinite}
+    .agentOrb.state-success .agentFace{box-shadow:0 0 0 1px rgba(65,227,167,.18),0 0 28px rgba(65,227,167,.26)}
+    .agentOrb.state-error .agentFace{box-shadow:0 0 0 1px rgba(255,94,94,.22),0 0 28px rgba(255,94,94,.25)}
+    .agentOrb.state-warning .agentFace{box-shadow:0 0 0 1px rgba(255,199,94,.22),0 0 28px rgba(255,199,94,.22)}
+    .agentOrb.state-notification .agentFace{box-shadow:0 0 0 1px rgba(88,190,255,.22),0 0 28px rgba(88,190,255,.22)}
+    .agentFace{width:112px;height:108px;border-radius:34px;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,rgba(65,227,167,.12),rgba(8,18,16,.0) 62%);overflow:visible;position:relative}
+    .agentFace::before{content:"";position:absolute;inset:-10px;border-radius:38px;background:radial-gradient(circle,rgba(65,227,167,.18),transparent 68%);opacity:.8;filter:blur(1px)}
+    .agentFace::after{content:"";position:absolute;inset:-28px -22px auto;height:120px;background:radial-gradient(circle at center,rgba(162,255,224,.2),transparent 60%);opacity:0;transform:scale(.6);transition:opacity .35s ease,transform .4s ease}
+    .agentOrb.show .agentFace::after{opacity:.8;transform:scale(1);animation:crownPulse 1.8s ease-out 1}
+    .agentFace img{position:relative;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 16px 34px rgba(0,0,0,.32));transition:transform .24s ease,filter .24s ease}
+    .agentOrb.show .agentFace img{transform:scale(1.03)}
+    .agentBody{margin-top:10px;text-align:center;padding:0 8px;text-shadow:0 2px 14px rgba(0,0,0,.58);opacity:.96;animation:labelFadeIn .42s ease-out .12s both}
+    .agentName{font-weight:800;color:#f1fff8;font-size:14px;line-height:1;letter-spacing:.01em}
+    .agentTrait{display:none}
+    .agentStatus{font-size:11px;color:#aef8d8;margin-top:6px;min-height:14px}.agentOrb.state-error .agentStatus{color:#ff9b9b}.agentOrb.state-warning .agentStatus{color:#ffd27a}.agentOrb.state-notification .agentStatus{color:#9bddff}
+    .idleAgent{position:absolute;left:50%;top:50%;width:118px;transform:translate(-50%,-50%);opacity:0;transition:opacity .32s ease, transform .32s ease;pointer-events:none;z-index:1;}
+    .idleAgent.show{opacity:1;animation:idleAgentFloat 4.6s ease-in-out infinite;}
+    .idleFace{width:118px;height:112px;border-radius:36px;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,rgba(255,199,94,.10),rgba(8,18,16,0) 62%);position:relative;}
+    .idleFace::before{content:"";position:absolute;inset:-12px;border-radius:40px;background:radial-gradient(circle,rgba(255,199,94,.14),transparent 68%);filter:blur(1px);}
+    .idleFace img{width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 12px 24px rgba(0,0,0,.34));}
+    .idleAgent.state-warning .agentStatus{color:#ffd27a;}
+    .agentOrb{z-index:3;}
+    .agentCrew,.agentLegend{z-index:4;}
+    .agentLegend{position:absolute;left:12px;right:12px;bottom:10px;text-align:center;font-size:11px;color:rgba(219,255,242,.72);opacity:0;transform:translateY(6px);transition:opacity .32s ease,transform .32s ease}
+    .agentLegend.show{opacity:1;transform:translateY(0)}
+    .agentCrew{position:absolute;left:14px;right:14px;bottom:44px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .3s ease,transform .3s ease}
+    .agentCrew.show{opacity:1;transform:translateY(0)}
+    .agentBadge{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(180deg,rgba(11,26,23,.96),rgba(7,18,16,.88));box-shadow:0 10px 24px rgba(0,0,0,.26),inset 0 0 0 1px rgba(65,227,167,.1);border:1px solid rgba(65,227,167,.08);position:relative;overflow:hidden}
+    .agentBadge img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(0,0,0,.28))}
+    .agentBadge.active{transform:translateY(-2px) scale(1.06);box-shadow:0 0 0 1px rgba(65,227,167,.18),0 0 28px rgba(65,227,167,.18),0 10px 24px rgba(0,0,0,.26)}
+    .agentBadge::after{content:"";position:absolute;inset:auto 8px 4px 8px;height:3px;border-radius:99px;background:rgba(255,255,255,.08)}
+    .agentBadge.state-busy::after{background:linear-gradient(90deg,rgba(65,227,167,.2),rgba(65,227,167,.95))}
+    .agentBadge.state-success::after{background:linear-gradient(90deg,rgba(65,227,167,.3),rgba(65,227,167,1))}
+    .agentBadge.state-error::after{background:linear-gradient(90deg,rgba(255,94,94,.3),rgba(255,94,94,1))}
+    .agentBadge.state-warning::after{background:linear-gradient(90deg,rgba(255,199,94,.3),rgba(255,199,94,1))}
+    .agentBadge.state-notification::after{background:linear-gradient(90deg,rgba(88,190,255,.3),rgba(88,190,255,1))}
+    .openclawLiveIcon{width:18px;height:18px;object-fit:contain;vertical-align:middle}.navItem.active .icon.icon-img img,.navItem.openclaw-busy .icon.icon-img img{filter:drop-shadow(0 0 10px rgba(65,227,167,.35))}.navItem.openclaw-busy .icon.icon-img img{animation:faceFloat 1.15s ease-in-out infinite, faceGlow 1.05s ease-in-out infinite}
+
+    .msg{max-width:900px;padding:16px 18px;border-radius:22px;line-height:1.58;white-space:pre-wrap}
+    .msg.user{align-self:flex-end;background:#103228;border:1px solid #1b5b49}
+    .msg.assistant{align-self:flex-start;background:#0b1a18;border:1px solid var(--line);position:relative;overflow:visible;scrollbar-color:rgba(65,227,167,.22) transparent}
+    .msg.assistant.typing{animation:bubbleGrow .34s ease-out forwards}
+    .msg.assistant.typing::after{content:"";display:inline-block;width:9px;height:1.1em;margin-left:4px;vertical-align:-2px;border-radius:3px;background:linear-gradient(180deg,#b8ffe5,#41e3a7);box-shadow:0 0 12px rgba(65,227,167,.45);animation:caretBlink .9s step-end infinite}
+    .msg.assistant.stream-complete::after{display:none}
+    .msg.rendered{white-space:normal}
+    .msg.rendered p{margin:0 0 10px}.msg.rendered p:last-child{margin-bottom:0}
+    .msg.rendered h1,.msg.rendered h2,.msg.rendered h3{margin:10px 0 8px}
+    .msg.rendered ul,.msg.rendered ol{margin:8px 0 10px 20px;padding:0}.msg.rendered li{margin:4px 0}
+    .msg.rendered code.inline{background:rgba(65,227,167,.08);border:1px solid rgba(65,227,167,.16);border-radius:8px;padding:2px 6px;font-family:Consolas,monospace;font-size:.94em}
+    .code-wrap{margin:10px 0 4px;border:1px solid rgba(65,227,167,.16);border-radius:16px;overflow:hidden;background:#0d1117;box-shadow:0 0 16px rgba(65,227,167,.06)}
+    .code-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:linear-gradient(180deg,#0f1715,#0b1211);border-bottom:1px solid rgba(65,227,167,.12)}
+    .code-lang{font:600 12px Arial,sans-serif;color:#8df3ca;text-transform:lowercase;letter-spacing:.02em}
+    .copy-btn{border:1px solid rgba(65,227,167,.22);background:rgba(65,227,167,.08);color:#d8fff1;border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+    .code-wrap pre{margin:0;padding:14px 16px;overflow:auto;background:#0d1117}.code-wrap code{font-family:Consolas,monospace;font-size:13px;line-height:1.55}
+    .composer{position:relative;border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(8,17,15,.82),rgba(8,17,15,.98));padding:18px 22px 18px}
+    .composerBox{max-width:980px;display:grid;gap:12px}
+    .composerShell{border:1px solid rgba(255,255,255,.1);background:#0a1917;border-radius:28px;padding:12px;box-shadow:0 0 0 1px rgba(65,227,167,.02),0 10px 40px rgba(0,0,0,.18)}
+    .attachmentTray{display:flex;flex-wrap:wrap;gap:8px;margin:2px 2px 10px}
+    .attachmentChip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:rgba(12,29,25,.92);border:1px solid rgba(65,227,167,.18)}
+    .attachmentChip strong{font-size:12px;color:#d7ffef}.attachmentChip span{font-size:11px;color:var(--muted)}
+    .attachmentChip button{border:none;background:transparent;color:#8df3ca;font-weight:700;cursor:pointer;font-size:12px}
+    .visionPreview{margin-top:10px;border:1px solid rgba(65,227,167,.16);border-radius:14px;overflow:hidden;background:rgba(8,20,17,.94)}
+    .visionPreview img{display:block;max-width:100%;max-height:240px;object-fit:contain;background:#071311}
+    .visionPreviewMeta{padding:10px 12px;font-size:12px;color:#cffff0;border-top:1px solid rgba(65,227,167,.12)}
+    .inputArea{width:100%;min-height:84px;max-height:220px;resize:none;overflow-y:auto;border:none;outline:none;background:transparent;color:var(--text);padding:8px 10px;font-size:18px;line-height:1.5}
+    .composerBar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 4px 0}
+    .leftTools,.rightTools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .toolBtn,.sendBtn,select{border:1px solid var(--line);background:#10211d;color:#eafff8;border-radius:999px;padding:10px 14px;cursor:pointer;transition:transform .16s ease,opacity .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
+    .sendBtn{background:var(--accent);color:#02271d;font-weight:800;border:none;min-width:100px;box-shadow:0 8px 24px rgba(65,227,167,.18)}
+    .sendBtn:hover,.toolBtn:hover,select:hover{transform:translateY(-1px)}
+    .sendBtn:disabled,.toolBtn:disabled,select:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .sendBtn.stop{background:#18322b;color:#d9fff1;border:1px solid rgba(65,227,167,.24);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+    .toolBtn.file{display:inline-flex;align-items:center;gap:8px}
+    .ghost{font-size:12px;color:var(--muted)}
+    .statusLine{display:flex;gap:8px;flex-wrap:wrap;padding-top:8px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#0b1f1c;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .featherLoader{position:fixed;right:22px;bottom:26px;width:180px;height:130px;display:flex;align-items:flex-end;justify-content:flex-end;background:transparent;border:none;box-shadow:none;opacity:0;transform:translateY(12px) scale(.92);pointer-events:none;transition:all .25s ease;z-index:60;overflow:visible}
+    .featherLoader::before{content:"";position:absolute;right:12px;bottom:32px;width:170px;height:22px;background:linear-gradient(90deg,transparent,rgba(65,227,167,.10),rgba(65,227,167,.34),transparent);filter:blur(6px);transform:rotate(-18deg) translateX(-12px);animation:trailMove 1.2s linear infinite}
+    .featherLoader::after{content:"Respondendo...";position:absolute;right:6px;bottom:0;font-size:11px;font-weight:800;color:#b9ffe3;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 0 12px rgba(65,227,167,.42)}
+    .featherLoader.active{opacity:1;transform:translateY(0) scale(1)}
+    .featherLoader img{width:132px;height:132px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(65,227,167,.95)) drop-shadow(0 0 12px rgba(255,255,255,.22));animation:featherFloat 1.05s ease-in-out infinite, featherGlow 1.25s ease-in-out infinite}
+    .attachmentMsg{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(65,227,167,.05);border:1px dashed rgba(65,227,167,.16);font-size:12px;color:#cbffeb}
+    .welcomeState{max-width:980px;margin:auto 0;padding:28px 0 12px;display:grid;gap:18px}
+    .welcomePanel{padding:26px;border:1px solid rgba(65,227,167,.12);border-radius:28px;background:linear-gradient(180deg,rgba(11,23,21,.86),rgba(9,18,16,.96));box-shadow:0 0 0 1px rgba(65,227,167,.03),0 24px 60px rgba(0,0,0,.24)}
+    .welcomeTitle{font-size:40px;font-weight:800;letter-spacing:-.02em}
+    .welcomeSub{color:var(--muted);max-width:820px;line-height:1.6}
+    .quickPrompts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+    .quickPrompt{padding:16px 18px;border-radius:20px;border:1px solid rgba(65,227,167,.14);background:rgba(10,25,22,.86);color:#eafff8;text-align:left;cursor:pointer}
+    .quickPrompt strong{display:block;margin-bottom:6px;font-size:15px}
+    .quickPrompt span{display:block;font-size:12px;color:var(--muted);line-height:1.5}
+    .composer.compact{padding-top:12px}
+    .composer.compact .composerShell{border-color:rgba(65,227,167,.12)}
+    .scrollDownBtn{position:fixed;right:26px;bottom:168px;width:48px;height:48px;border-radius:999px;border:1px solid rgba(65,227,167,.22);background:rgba(9,20,17,.92);color:#dffff4;cursor:pointer;box-shadow:0 14px 40px rgba(0,0,0,.26);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .18s ease,transform .18s ease;z-index:55}
+    .scrollDownBtn.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+    .hidden{display:none}
+    @keyframes featherFloat{0%,100%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-6px) rotate(8deg)}}
+    @keyframes featherGlow{0%,100%{opacity:.78}50%{opacity:1}}@keyframes trailMove{0%{transform:rotate(-18deg) translateX(-60px);opacity:.18}50%{opacity:.95}100%{transform:rotate(-18deg) translateX(60px);opacity:.12}}
+    @keyframes bubbleGrow{0%{transform:scale(.978);box-shadow:0 0 0 rgba(65,227,167,0),0 0 0 rgba(65,227,167,0)}40%{transform:scale(1.015);box-shadow:0 0 26px rgba(65,227,167,.18),0 0 48px rgba(65,227,167,.10)}100%{transform:scale(1);box-shadow:0 0 16px rgba(65,227,167,.10),0 0 28px rgba(65,227,167,.05)}}
+    @keyframes caretBlink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+    @keyframes agentPulse{0%,100%{box-shadow:0 0 0 1px rgba(65,227,167,.10),0 8px 24px rgba(0,0,0,.14)}50%{box-shadow:0 0 0 1px rgba(65,227,167,.24),0 0 0 8px rgba(65,227,167,.05),0 14px 32px rgba(0,0,0,.18)}}
+    @keyframes agentEntrance{0%{transform:translate(-50%,-50%) scale(.34) rotate(calc(var(--orbRotate) - 9deg));opacity:0;filter:blur(14px)}45%{transform:translate(-50%,-50%) scale(1.08) rotate(calc(var(--orbRotate) + 2deg));opacity:1;filter:blur(1px)}100%{transform:translate(-50%,-50%) scale(1) rotate(var(--orbRotate));opacity:1;filter:blur(0)}}
+    @keyframes orbHover{0%,100%{transform:translate(-50%,-50%) translate3d(0,0,0) scale(1) rotate(var(--orbRotate))}25%{transform:translate(-50%,-50%) translate3d(calc(var(--driftX)*.45),calc(var(--driftY)*.35),0) scale(1.012) rotate(calc(var(--orbRotate) + 1.4deg))}50%{transform:translate(-50%,-50%) translate3d(var(--driftX),var(--driftY),0) scale(.996) rotate(calc(var(--orbRotate) - 1deg))}75%{transform:translate(-50%,-50%) translate3d(calc(var(--driftX)*.35),calc(var(--driftY)*-.22),0) scale(1.01) rotate(calc(var(--orbRotate) + .8deg))}}
+    @keyframes faceFloatPremium{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @keyframes faceGlow{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 0 18px rgba(65,227,167,.12)}50%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 0 26px rgba(65,227,167,.26)}}
+    @keyframes crownPulse{0%{opacity:0;transform:scale(.5)}45%{opacity:.9;transform:scale(1.06)}100%{opacity:0;transform:scale(1.24)}}
+    @keyframes labelFadeIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:.96;transform:translateY(0)}}
+    @keyframes idleAgentFloat{0%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-5px)}100%{transform:translate(-50%,-50%) translateY(0)}}
+    @keyframes idleAgentBreath{0%{filter:drop-shadow(0 10px 20px rgba(255,199,94,.10))}50%{filter:drop-shadow(0 10px 28px rgba(255,199,94,.22))}100%{filter:drop-shadow(0 10px 20px rgba(255,199,94,.10))}}
+    .idleFace img{animation:idleAgentBreath 3.2s ease-in-out infinite;}
+    
+    .openclawPanel{position:absolute;inset:24px 24px 24px 24px;z-index:6;border:1px solid rgba(65,227,167,.18);background:linear-gradient(180deg,rgba(7,19,17,.97),rgba(5,14,12,.98));border-radius:24px;box-shadow:0 16px 50px rgba(0,0,0,.35);padding:22px;display:none;overflow:auto}
+    .openclawPanel.open{display:block}
+    .openclawHead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .openclawBrand{display:flex;align-items:center;gap:14px}.openclawBrand img{width:44px;height:44px;object-fit:contain;border-radius:14px;filter:drop-shadow(0 0 16px rgba(65,227,167,.22))}
+    .openclawTitle{font-size:26px;font-weight:800}.openclawSub{color:var(--muted);margin-top:4px}
+    .openclawGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .openclawCard{border:1px solid rgba(65,227,167,.14);background:rgba(10,24,21,.88);border-radius:18px;padding:16px}
+    .openclawCard h3{margin:0 0 12px;font-size:15px}.openclawList{display:grid;gap:8px}.openclawRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(65,227,167,.05);border:1px solid rgba(65,227,167,.08)}
+    .openclawRow code{font-family:Consolas,monospace;color:#8df3ca}.statusDot{width:10px;height:10px;border-radius:999px;background:#41e3a7;box-shadow:0 0 12px rgba(65,227,167,.6)}
+    .statusDot.off{background:#f59e0b;box-shadow:0 0 12px rgba(245,158,11,.55)}
+    .openclawActions{display:flex;gap:10px;flex-wrap:wrap}.openclawBtn{border:1px solid rgba(65,227,167,.18);background:#0f2520;color:#eafff8;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+    .openclawJson{width:100%;min-height:260px;border:1px solid rgba(65,227,167,.12);border-radius:16px;background:#071311;color:#dffef2;padding:14px;font-family:Consolas,monospace;font-size:12px;line-height:1.5;resize:vertical}
+    .openclawHint{color:var(--muted);font-size:12px;margin-top:8px}
+    @media (max-width:960px){.openclawGrid{grid-template-columns:1fr}.openclawPanel{inset:12px}.openclawHead{align-items:flex-start;flex-direction:column}}
+
+    @media (max-width:1200px){.messages{padding-right:28px}.agentStage{right:18px;top:104px;transform:scale(.92);transform-origin:top right}}
+    @media (max-width:960px){.agentStage{display:none}}
+    @media (max-width:960px){.layout{grid-template-columns:1fr}.sidebar{display:none}.messages{padding:18px 16px 190px}.header{padding:14px 16px;align-items:flex-start;gap:12px}.headerTitle{font-size:24px}.headerActions{width:100%;justify-content:flex-start}}
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <script src="../assets/js/runtime-config.js"></script>
+  <script>
+    (function(){
+      const configured = window.RUNTIME_CONFIG || {};
+      const trim = (value) => String(value || '').trim().replace(/\/$/, '');
+      const sameOrigin = trim(window.location.origin);
+      const configuredBase = trim(configured.AI_API_BASE_URL || configured.API_BASE_URL || configured.API_URL || configured.API_BASE);
+      const configuredFallbacks = Array.isArray(configured.API_FALLBACKS) ? configured.API_FALLBACKS.map(trim) : [];
+      const isLocalHost = /localhost|127\.0\.0\.1/i.test(String(window.location.hostname || ''));
+      const storedBase = trim(window.localStorage.getItem('technet.apiBase'));
+      const apiCandidates = [
+        storedBase,
+        sameOrigin,
+        configuredBase,
+        ...configuredFallbacks,
+        'https://api.technetgame.com.br',
+        'https://technetgame-backend-production.up.railway.app'
+      ].filter(Boolean).filter((value, index, arr) => arr.indexOf(value) === index);
+
+      let activeApiBase = (isLocalHost ? sameOrigin : (storedBase || configuredBase || sameOrigin));
+      if (!apiCandidates.includes(activeApiBase)) apiCandidates.unshift(activeApiBase);
+
+      const originalFetch = window.fetch.bind(window);
+      const api = (...args) => window.api(...args);
+      const isApiPath = (value) => typeof value === 'string' && /^\/api\//.test(value);
+      const normalizeInput = (input) => {
+        if (typeof input === 'string') return { url: input, mode: 'string' };
+        if (input instanceof Request) return { url: input.url, mode: 'request', request: input };
+        return { url: String(input || ''), mode: 'other' };
+      };
+      const withBase = (base, rawUrl) => {
+        if (!isApiPath(rawUrl)) return rawUrl;
+        return `${trim(base)}${rawUrl}`;
+      };
+      const persistBase = (base) => {
+        activeApiBase = trim(base) || activeApiBase;
+        window.__TNA_API_BASE__ = activeApiBase;
+        try { window.localStorage.setItem('technet.apiBase', activeApiBase); } catch {}
+      };
+      const canRetryResponse = (response) => !response || response.status >= 500 || response.status === 401 || response.status === 404 || response.status === 405 || response.status === 502 || response.status === 503 || response.status === 504;
+
+      persistBase(activeApiBase);
+      window.__TNA_API_CANDIDATES__ = apiCandidates.slice();
+
+      window.fetch = async function(input, init){
+        const meta = normalizeInput(input);
+        if (!isApiPath(meta.url)) return originalFetch(input, init);
+
+        const orderedBases = [activeApiBase, ...apiCandidates.filter((item) => item !== activeApiBase)];
+        let lastError = null;
+
+        for (const base of orderedBases) {
+          const targetUrl = withBase(base, meta.url);
+          try {
+            let response;
+            if (meta.mode === 'string') {
+              response = await originalFetch(targetUrl, init);
+            } else if (meta.mode === 'request') {
+              response = await originalFetch(new Request(targetUrl, meta.request), init);
+            } else {
+              response = await originalFetch(targetUrl, init);
+            }
+            if (!canRetryResponse(response)) {
+              persistBase(base);
+              return response;
+            }
+            lastError = new Error(`HTTP ${response.status} em ${base}`);
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        throw lastError || new Error('Nenhuma API disponível no momento.');
+      };
+    })();
+  </script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-top">
+        <div class="brand"><img src="../assets/technet-ai/pena-logo.png" alt="Logo TechNet AI"><span>TechNet AI</span></div>
+        <div class="top-tools">
+          <button class="collapseBtn">☰</button>
+          <button class="ghostIcon">▢</button>
+        </div>
+      </div>
+      <div class="nav-scroll">
+        <button class="newChatBtn" id="newChatBtn">＋ Novo chat</button>
+        <div class="navGroup">
+          <div class="navItem active"><span class="icon">⌕</span><span>Buscar em chats</span></div>
+          <div class="navItem"><span class="icon">🖼</span><span>Imagens</span></div>
+          <div class="navItem"><span class="icon">🗂</span><span>Galeria</span></div>
+          <div class="navItem"><span class="icon">◫</span><span>Aplicativos</span></div>
+          <div class="navItem"><span class="icon">✦</span><span>Investigação</span></div>
+          <div class="navItem"><span class="icon">📰</span><span>Notícias ao vivo</span></div>
+          <div class="navItem"><span class="icon">⌘</span><span>Codex</span></div>
+          <div class="navItem"><span class="icon">◎</span><span>GPTs</span></div>
+          <div class="navItem"><span class="icon">▣</span><span>Projetos</span></div>
+          <div class="navItem" id="navOpenClaw"><span class="icon icon-img"><img src="../assets/technet-ai/smiles/openclaw.png" alt="OpenClaw"></span><span>OpenClaw</span></div>
+        </div>
+
+        <div class="sectionTitle">Seu espaço TechNet</div>
+        <div class="accountCard">
+          <div class="small" id="authStatus">Modo aberto ativo. Pergunte direto.</div>
+          <div class="accountEmail" id="statusUser">Modo: aberto</div>
+          <div class="small" id="statusUsage">Open Pro para todos</div>
+          <div class="small" id="currentSessionLabel">nenhuma</div>
+        </div>
+
+        <div class="memoryCard">
+          <div class="memoryRow"><strong>🧠 Memória avançada</strong><span id="memoryStatus">inativa</span></div>
+          <div class="small" id="memorySummary">Ainda sem contexto aprendido nesta conta.</div>
+          <div class="memoryList" id="memoryTags"></div>
+          <div class="memoryActions">
+            <button class="memoryBtn" id="refreshMemoryBtn" type="button">Atualizar memória</button>
+            <button class="memoryBtn" id="clearMemoryBtn" type="button">Limpar memória</button>
+          </div>
+        </div>
+
+        <div class="sectionTitle">Seus chats</div>
+        <div class="historyList" id="sessionList"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <div>
+          <div class="headerTitle">TechNet AI Command</div>
+          
+        </div>
+        <div class="headerActions"><a href="/" class="btnHome" id="homeLink">← Voltar para Home</a><a href="/technet-ai/?panel=openclaw" id="adminLink">Abrir Admin Pro</a></div>
+      </div>
+
+      <div class="messages" id="messages">
+        
+        <aside class="agentStage" id="agentStage" aria-label="Agentes ativos">
+          <div class="agentStagePanel">
+            <div class="agentStageTitle"><span><img src="../assets/technet-ai/smiles/status.png" alt="Status" class="openclawLiveIcon"> Agents</span><span>live</span></div>
+            <div class="agentGrid" id="agentGrid">
+              <div id="idleAgent" class="idleAgent show state-warning">
+                <div class="agentFace idleFace">
+                  <img id="idleAgentImg" src="../assets/technet-ai/smiles/battery-warning.png" alt="Battery low warning">
+                </div>
+                <div class="agentBody">
+                  <div class="agentName">Battery Warning</div>
+                  <div class="agentStatus">Monitorando em repouso</div>
+                </div>
+              </div>
+
+              <div class="agentOrb" id="agentOrb" aria-live="polite">
+                <div class="agentFace"><img id="agentOrbImg" src="../assets/technet-ai/smiles/default.png" alt="Agente ativo"></div>
+                <div class="agentBody"><div class="agentName" id="agentOrbName">Default</div><div class="agentStatus" id="agentOrbStatus">Em ação</div></div>
+              </div>
+
+              <div class="agentCrew" id="agentCrew"></div>
+              <div class="agentLegend" id="agentLegend">Os agentes ficam ocultos e surgem apenas quando entram em ação.</div>
+            </div>
+          </div>
+        </aside>
+        
+        <section class="openclawPanel" id="openclawPanel" aria-label="Painel OpenClaw">
+          <div class="openclawHead">
+            <div class="openclawBrand">
+              <img src="../assets/technet-ai/smiles/openclaw.png" alt="OpenClaw principal">
+              <div>
+                <div class="openclawTitle">OpenClaw Control</div>
+                <div class="openclawSub">Painel lateral com snapshot ao vivo do bridge OpenClaw e roteamento de agentes.</div>
+              </div>
+            </div>
+            <div class="openclawActions">
+              <button class="openclawBtn" id="openclawRefreshBtn" type="button">Recarregar</button>
+              <button class="openclawBtn" id="openclawCloseBtn" type="button">Fechar</button>
+            </div>
+          </div>
+          <div class="openclawGrid">
+            <div class="openclawCard">
+              <h3>Status do bridge</h3>
+              <div class="openclawList" id="openclawStatusList"></div>
+            </div>
+            <div class="openclawCard">
+              <h3>Agent routing</h3>
+              <div class="openclawList" id="openclawRoutingList"></div>
+            </div>
+            <div class="openclawCard">
+              <h3>Models</h3>
+              <div class="openclawList" id="openclawModelsList"></div>
+            </div>
+            <div class="openclawCard">
+              <h3>Snapshot JSON</h3>
+              <textarea class="openclawJson" id="openclawJson" readonly></textarea>
+              <div class="openclawHint">Leitura segura no chat principal. Edição persistente disponível no Admin Pro.</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="welcomeState" id="welcomeState">
+          <div class="welcomePanel">
+            <div class="welcomeTitle">TechNet AI Command</div>
+            
+            <div class="quickPrompts">
+              <button type="button" class="quickPrompt" data-prompt="Analise este projeto e me diga os 5 riscos técnicos mais importantes."><strong>Análise técnica</strong><span>Resume riscos, gargalos e próximos passos.</span></button>
+              <button type="button" class="quickPrompt" data-prompt="Revise este código e proponha patches cirúrgicos sem reescrever a arquitetura."><strong>Patch cirúrgico</strong><span>Ideal para debug estável sem loop de correções.</span></button>
+              <button type="button" class="quickPrompt" data-prompt="Monte um plano de execução em checklist para este projeto."><strong>Checklist prático</strong><span>Entrega passos claros, objetivos e seguros.</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="composerBox">
+          <div class="composerShell">
+            <div class="attachmentTray" id="attachmentTray"></div>
+            <textarea id="messageInput" class="inputArea" placeholder="Pergunte qualquer coisa: notícias atuais, política, tecnologia, estudos, código, estratégia ou anexe arquivos..."></textarea>
+            <div class="composerBar">
+              <div class="leftTools">
+                <label class="toolBtn file" for="attachmentInput">📎 Adicionar arquivos</label>
+                <input id="attachmentInput" class="hidden" type="file" multiple accept=".zip,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.pdf,.doc,.docx,.js,.ts,.json,.py,.html,.css,.csv">
+                <label class="toolBtn file" for="visionImageInput">📷 Ler print</label>
+                <input id="visionImageInput" class="hidden" type="file" accept="image/*">
+                <select id="visionAgentSelect"><option value="default">Vision geral</option><option value="bug">Debug visual</option><option value="ui">UI/UX visual</option><option value="hardware">Hardware visual</option><option value="osint">OSINT visual</option></select>
+                <select id="modelSelect"><option value="">Modelo automático</option></select>
+                <select id="streamSelect"><option value="on">Streaming ligado</option><option value="off">Streaming desligado</option></select>
+              </div>
+              <div class="rightTools">
+                <button class="toolBtn" id="clearSessionBtn">Limpar sessão</button>
+                <button class="sendBtn" id="sendBtn">Enviar</button>
+              </div>
+            </div>
+          </div>
+          <div class="ghost" id="composerHint">Agora aceita ZIP do projeto, imagens/prints, texto, PDF, DOCX e arquivos de código.</div>
+          <div class="statusLine">
+            <div class="pill" id="statusApi">API: carregando...</div>
+            <div class="pill" id="tokenPreview">token...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="scrollDownBtn" id="scrollDownBtn" type="button" aria-label="Ir para o fim da conversa">↓</button>
+  <div class="featherLoader" id="featherLoader"><img src="../assets/technet-ai/pena-logo.png" alt="Carregando"></div>
+
+  <script>
+    const els = {
+      messages: document.getElementById('messages'), statusApi: document.getElementById('statusApi'), statusUser: document.getElementById('statusUser'), statusUsage: document.getElementById('statusUsage'), authStatus: document.getElementById('authStatus'), messageInput: document.getElementById('messageInput'), modelSelect: document.getElementById('modelSelect'), streamSelect: document.getElementById('streamSelect'), sessionList: document.getElementById('sessionList'), currentSessionLabel: document.getElementById('currentSessionLabel'), tokenPreview: document.getElementById('tokenPreview'), featherLoader: document.getElementById('featherLoader'), attachmentInput: document.getElementById('attachmentInput'), visionImageInput: document.getElementById('visionImageInput'), visionAgentSelect: document.getElementById('visionAgentSelect'), attachmentTray: document.getElementById('attachmentTray'), sendBtn: document.getElementById('sendBtn'), clearSessionBtn: document.getElementById('clearSessionBtn'), welcomeState: document.getElementById('welcomeState'), composer: document.querySelector('.composer'), composerHint: document.getElementById('composerHint'), scrollDownBtn: document.getElementById('scrollDownBtn'), agentGrid: document.getElementById('agentGrid'), agentCrew: document.getElementById('agentCrew'), agentLegend: document.getElementById('agentLegend'), idleAgent: document.getElementById('idleAgent'), idleAgentImg: document.getElementById('idleAgentImg'), navOpenClaw: document.getElementById('navOpenClaw'), openclawPanel: document.getElementById('openclawPanel'), openclawRefreshBtn: document.getElementById('openclawRefreshBtn'), openclawCloseBtn: document.getElementById('openclawCloseBtn'), openclawStatusList: document.getElementById('openclawStatusList'), openclawRoutingList: document.getElementById('openclawRoutingList'), openclawModelsList: document.getElementById('openclawModelsList'), openclawJson: document.getElementById('openclawJson'), memoryStatus: document.getElementById('memoryStatus'), memorySummary: document.getElementById('memorySummary'), memoryTags: document.getElementById('memoryTags'), refreshMemoryBtn: document.getElementById('refreshMemoryBtn'), clearMemoryBtn: document.getElementById('clearMemoryBtn')
+    };
+
+    function escapeHtml(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+    function markdownToHtml(source){let text=String(source||'').replace(/\r\n/g,'\n');const blocks=[];text=text.replace(/```(\w+)?\n([\s\S]*?)```/g,(_,lang='code',code='')=>{const token=`__CODE_BLOCK_${blocks.length}__`;blocks.push({lang:(lang||'code').toLowerCase(),code:code.replace(/\n$/,'')});return token});let html=escapeHtml(text);html=html.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*(?!\s)(.+?)(?<!\s)\*/g,'$1<em>$2</em>').replace(/`([^`]+)`/g,'<code class="inline">$1</code>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');html=html.split(/\n{2,}/).map(block=>{const trimmed=block.trim();if(!trimmed)return '';if(/^<h[1-3]>/.test(trimmed)||/^__CODE_BLOCK_\d+__$/.test(trimmed))return trimmed;const lines=trimmed.split('\n');if(lines.every(line=>/^[-*]\s+/.test(line)))return '<ul>'+lines.map(line=>'<li>'+line.replace(/^[-*]\s+/,'')+'</li>').join('')+'</ul>';if(lines.every(line=>/^\d+\.\s+/.test(line)))return '<ol>'+lines.map(line=>'<li>'+line.replace(/^\d+\.\s+/,'')+'</li>').join('')+'</ol>';return '<p>'+lines.join('<br>')+'</p>'}).join('');html=html.replace(/__CODE_BLOCK_(\d+)__/g,(_,idx)=>{const block=blocks[Number(idx)]||{lang:'code',code:''};return `<div class="code-wrap"><div class="code-head"><span class="code-lang">${block.lang}</span><button class="copy-btn" data-copy="${Number(idx)}">Copiar</button></div><pre><code class="language-${block.lang}">${escapeHtml(block.code)}</code></pre></div>`});return html}
+    function applyCodeEnhancements(scope){scope.querySelectorAll('pre code').forEach(el=>{if(window.hljs)window.hljs.highlightElement(el)});scope.querySelectorAll('[data-copy]').forEach(btn=>{btn.onclick=async()=>{const code=btn.closest('.code-wrap')?.querySelector('code')?.innerText||'';try{await navigator.clipboard.writeText(code);const t=btn.textContent;btn.textContent='Copiado';setTimeout(()=>btn.textContent=t,1200)}catch{btn.textContent='Falhou';setTimeout(()=>btn.textContent='Copiar',1200)}}})}
+    function renderAssistantBubble(bubble,raw){bubble.dataset.raw=raw||'';bubble.innerHTML=markdownToHtml(raw||'');bubble.classList.add('rendered');applyCodeEnhancements(bubble);if(shouldStickToBottom())scrollMessagesToBottom()}
+    function shouldStickToBottom(threshold=120){const distance=els.messages.scrollHeight-els.messages.scrollTop-els.messages.clientHeight;return distance<=threshold}
+    function scrollMessagesToBottom(force=false){if(force||shouldStickToBottom()){requestAnimationFrame(()=>{els.messages.scrollTop=els.messages.scrollHeight})}}
+    function updateScrollDownButton(){const show=els.messages.scrollHeight>els.messages.clientHeight+40&&!shouldStickToBottom(150);els.scrollDownBtn.classList.toggle('visible',show)}
+    function autoResizeTextarea(){els.messageInput.style.height='auto';const next=Math.max(84,Math.min(220,els.messageInput.scrollHeight));els.messageInput.style.height=next+'px'}
+    function updateWelcomeState(){const hasMessages=els.messages.querySelector('.msg');els.welcomeState.classList.toggle('hidden',!!hasMessages);els.composer.classList.toggle('compact',!hasMessages)}
+    function setSendButtonMode(mode='send'){if(mode==='stop'){els.sendBtn.textContent='Parar';els.sendBtn.classList.add('stop')}else{els.sendBtn.textContent='Enviar';els.sendBtn.classList.remove('stop')}}
+    function setComposerEnabled(enabled){els.messageInput.disabled=!enabled;els.modelSelect.disabled=!enabled;els.streamSelect.disabled=!enabled;els.clearSessionBtn.disabled=!enabled&&!state.currentSessionId}
+
+    const AGENT_UI={
+      planner:{label:'Planner',desc:'Estratégia e execução segura',idle:'assets/technet-ai/smiles/planner.png'},
+      coder:{label:'Coder',desc:'Código, debug e patches',idle:'assets/technet-ai/smiles/coder.png'},
+      research:{label:'Research',desc:'Fontes, RSS e verificação',idle:'assets/technet-ai/smiles/research.png'},
+      default:{label:'Default',desc:'Conversa geral e contexto',idle:'assets/technet-ai/smiles/default.png'},
+      bug:{label:'Debug Visual',desc:'Prints de erro e bugs',idle:'assets/technet-ai/smiles/bug.png'},
+      ui:{label:'UI/UX Visual',desc:'Layout, alinhamento e contraste',idle:'assets/technet-ai/smiles/ui.png'},
+      hardware:{label:'Hardware Visual',desc:'Specs e desempenho',idle:'assets/technet-ai/smiles/hardware.png'},
+      osint:{label:'OSINT Visual',desc:'Contexto e verificação visual',idle:'assets/technet-ai/smiles/osint.png'}
+    };
+    const SMILE_STATES={action:'assets/technet-ai/smiles/action.png',success:'assets/technet-ai/smiles/success.png',error:'assets/technet-ai/smiles/error.png',warning:'assets/technet-ai/smiles/warning.png',notification:'assets/technet-ai/smiles/notification.png'};
+    let agentResetTimer=null;
+    let agentLegendTimer=null;
+    function showIdleAgent(){
+      els.idleAgent?.classList.add('show');
+    }
+    function hideIdleAgent(){
+      els.idleAgent?.classList.remove('show');
+    }
+    function randomizeAgentOrbPosition(){
+      const zone=els.agentGrid;
+      const orb=document.getElementById('agentOrb');
+      if(!zone || !orb) return {left:50, top:50};
+      const zoneWidth=zone.clientWidth||224;
+      const zoneHeight=zone.clientHeight||336;
+      const orbWidth=Math.min(orb.offsetWidth||112, zoneWidth-24);
+      const orbHeight=Math.min(orb.offsetHeight||148, zoneHeight-24);
+      const minX=(orbWidth/2)+10;
+      const maxX=zoneWidth-(orbWidth/2)-10;
+      const minY=(orbHeight/2)+12;
+      const maxY=zoneHeight-(orbHeight/2)-14;
+      return {
+        left:minX + Math.random()*Math.max(8,(maxX-minX)),
+        top:minY + Math.random()*Math.max(8,(maxY-minY))
+      };
+    }
+    function hideAgentOrb(delay=0){
+      clearTimeout(agentResetTimer);
+      agentResetTimer=setTimeout(()=>{
+        const orb=document.getElementById('agentOrb');
+        if(orb){
+          orb.classList.remove('show','state-busy','state-success','state-error','state-warning','state-notification');
+        }
+        if(els.agentCrew){
+          els.agentCrew.classList.remove('show');
+          els.agentCrew.innerHTML='';
+        }
+        els.agentLegend?.classList.remove('show');
+        els.navOpenClaw?.classList.remove('openclaw-busy');
+        showIdleAgent();
+      }, delay);
+    }
+    function mergeUniqueAgents(items=[]){const seen=new Set();return items.filter(key=>{const agent=String(key||'').trim();if(!agent || seen.has(agent) || !AGENT_UI[agent]) return false;seen.add(agent);return true;});}
+    function predictAgentsFromMessage(message=''){
+      const lower=String(message||'').toLowerCase();
+      const picks=[];
+      if(/(plano|planej|arquitetura|roadmap|estrat|checklist|passo a passo|cronograma|prioridade)/.test(lower)) picks.push('planner');
+      if(/(c[oó]digo|debug|erro|bug|css|html|javascript|node|express|backend|frontend|api|patch|falha|stack trace|deploy)/.test(lower)) picks.push('coder');
+      if(/(layout|ui|ux|alinhamento|contraste|interface|design|visual|sidebar|bot[aã]o|scroll)/.test(lower)) picks.push('ui');
+      if(/(gpu|cpu|placa|vram|ram|hardware|ssd|fonte|temperatura|fps|watt)/.test(lower)) picks.push('hardware');
+      if(/(not[ií]cia|manchete|pesquise|pesquisar|investigue|fontes|rss|tempo real|origem|verifique|pesquisa)/.test(lower)) picks.push('research');
+      if(/(osint|contexto|evid[eê]ncia|risco|cronologia|verifica[cç][aã]o)/.test(lower)) picks.push('osint');
+      return mergeUniqueAgents(picks.length?picks:['default']);
+    }
+    function inferAgentsFromResponse(text=''){
+      const lower=String(text||'').toLowerCase();
+      const picks=[];
+      if(/(erro|bug|falha|corrig|stack|endpoint|backend|api|node|express|deploy|trace)/.test(lower)) picks.push('coder');
+      if(/(layout|ui|ux|contraste|tipografia|alinhamento|bot[aã]o|sidebar|interface|scroll|visual)/.test(lower)) picks.push('ui');
+      if(/(gpu|cpu|placa|vram|ram|ssd|watt|temperatura|fps|hardware)/.test(lower)) picks.push('hardware');
+      if(/(fonte|origem|evid[eê]ncia|osint|contexto|risco|verifica[cç][aã]o|cronologia)/.test(lower)) picks.push('osint');
+      if(/(plano|roadmap|estrat[eé]gia|checklist|etapa|prioridade)/.test(lower)) picks.push('planner');
+      if(/(pesquisa|investiga[cç][aã]o|fontes|rss|not[ií]cia)/.test(lower)) picks.push('research');
+      return mergeUniqueAgents(picks);
+    }
+    function renderAgentCrew(agentKeys=[], activeAgent='default', state='idle'){
+      if(!els.agentCrew) return;
+      const crew=mergeUniqueAgents([activeAgent, ...agentKeys]).slice(0,4);
+      if(!crew.length){ els.agentCrew.classList.remove('show'); els.agentCrew.innerHTML=''; return; }
+      els.agentCrew.innerHTML='';
+      crew.forEach(agentKey=>{
+        const meta=AGENT_UI[agentKey]||AGENT_UI.default;
+        const badge=document.createElement('div');
+        badge.className=`agentBadge ${agentKey===activeAgent?'active':''} state-${state==='idle'?'notification':state}`.trim();
+        badge.title=meta.label;
+        const img=document.createElement('img');
+        img.src=meta.idle;
+        img.alt=meta.label;
+        badge.appendChild(img);
+        els.agentCrew.appendChild(badge);
+      });
+      els.agentCrew.classList.add('show');
+    }
+    function paintAgentCard(agent='default', state='idle', labelOverride='', crewAgents=[]){
+      hideIdleAgent();
+      const meta=AGENT_UI[agent]||AGENT_UI.default;
+      const orb=document.getElementById('agentOrb');
+      const orbImg=document.getElementById('agentOrbImg');
+      const orbName=document.getElementById('agentOrbName');
+      const orbStatus=document.getElementById('agentOrbStatus');
+      if(!orb || !orbImg || !orbName || !orbStatus) return;
+      clearTimeout(agentResetTimer);
+      clearTimeout(agentLegendTimer);
+      orb.classList.remove('state-busy','state-success','state-error','state-warning','state-notification');
+      orbImg.src=meta.idle;
+      orbImg.alt=meta.label;
+      orbName.textContent=meta.label;
+      orbStatus.textContent=labelOverride || 'Em ação';
+      if(state==='busy' || state===true){ orb.classList.add('state-busy'); orbStatus.textContent=labelOverride || 'Em ação'; }
+      else if(state==='success'){ orb.classList.add('state-success'); orbStatus.textContent=labelOverride || 'Concluído'; }
+      else if(state==='error'){ orb.classList.add('state-error'); orbStatus.textContent=labelOverride || 'Falha'; }
+      else if(state==='warning'){ orb.classList.add('state-warning'); orbStatus.textContent=labelOverride || 'Interrompido'; }
+      else if(state==='notification'){ orb.classList.add('state-notification'); orbStatus.textContent=labelOverride || 'Resposta pronta'; }
+      else { orbStatus.textContent=labelOverride || 'Pronto'; }
+
+      const pos=randomizeAgentOrbPosition();
+      orb.style.left=`${pos.left}px`;
+      orb.style.top=`${pos.top}px`;
+      orb.style.setProperty('--driftX', `${(Math.random()*20-10).toFixed(1)}px`);
+      orb.style.setProperty('--driftY', `${(-8-Math.random()*16).toFixed(1)}px`);
+      orb.style.setProperty('--orbRotate', `${(Math.random()*8-4).toFixed(1)}deg`);
+      orb.classList.remove('show');
+      void orb.offsetWidth;
+      orb.classList.add('show');
+
+      renderAgentCrew(crewAgents, agent, state==='idle'?'notification':state);
+      if(els.agentLegend){
+        const crewLabels=mergeUniqueAgents([agent, ...crewAgents]).map(key=>(AGENT_UI[key]||AGENT_UI.default).label);
+        els.agentLegend.textContent=`${meta.label} em ação${crewLabels.length>1?` com ${crewLabels.slice(1).join(', ')}`:''} — ${meta.desc}.`;
+        els.agentLegend.classList.add('show');
+        agentLegendTimer=setTimeout(()=>els.agentLegend?.classList.remove('show'), 2200);
+      }
+      els.navOpenClaw?.classList.toggle('openclaw-busy', state==='busy' || state===true);
+    }
+    function scheduleAgentIdle(agent='default', delay=1600){
+      clearTimeout(agentResetTimer);
+      agentResetTimer=setTimeout(()=>hideAgentOrb(0), delay);
+    }
+    function setActiveAgent(agent='default', state='idle', crewAgents=[]){
+      if(state==='busy' || state===true){
+        paintAgentCard(agent,'busy','Em ação',crewAgents);
+        return;
+      }
+      if(state==='success'){
+        paintAgentCard(agent,'success','Concluído',crewAgents);
+        scheduleAgentIdle(agent,1500);
+        return;
+      }
+      if(state==='notification'){
+        paintAgentCard(agent,'notification','Resposta pronta',crewAgents);
+        scheduleAgentIdle(agent,1800);
+        return;
+      }
+      if(state==='warning'){
+        paintAgentCard(agent,'warning','Interrompido',crewAgents);
+        scheduleAgentIdle(agent,1800);
+        return;
+      }
+      if(state==='error'){
+        paintAgentCard(agent,'error','Falha',crewAgents);
+        scheduleAgentIdle(agent,2200);
+        return;
+      }
+      hideAgentOrb(0);
+    }
+    function predictAgentFromMessage(message=''){ return predictAgentsFromMessage(message)[0] || 'default'; }
+    function inferAgentFromResponse(text=''){ return inferAgentsFromResponse(text)[0] || 'default'; }
+    function resolvePresenceAgent({backendAgent='', predictedAgent='default', responseText='' }={}){const fromBackend=String(backendAgent||'').trim(); if(fromBackend && AGENT_UI[fromBackend]) return fromBackend; const inferred=inferAgentFromResponse(responseText); if(inferred && inferred!=='default') return inferred; return predictedAgent || 'default';}
+    function resolvePresenceAgents({backendAgent='', predictedAgents=[], predictedAgent='default', responseText='' }={}){ return mergeUniqueAgents([backendAgent, ...predictedAgents, predictedAgent, ...inferAgentsFromResponse(responseText)]); }
+    window.triggerAgent=(agent='default', state='notification', crew=[])=>setActiveAgent(agent,state,Array.isArray(crew)?crew:[]);
+
+    function renderKeyValueList(container, rows=[]){ if(!container) return; container.innerHTML=''; rows.forEach(([left,right,ok])=>{ const row=document.createElement('div'); row.className='openclawRow'; row.innerHTML=`<span>${left}</span><span>${typeof ok==='boolean'?`<span class="statusDot ${ok?'':'off'}"></span>`:''} ${right}</span>`; container.appendChild(row); }); }
+    async function loadOpenClawPanel(){
+      try {
+        const [statusRes, profileRes, settingsRes] = await Promise.all([
+          fetch(window.tngApiUrl('/api/v1/system/openclaw-status')),
+          fetch(window.tngApiUrl('/api/v1/system/openclaw-profile')),
+          fetch(window.tngApiUrl('/api/v1/system/openclaw-settings'))
+        ]);
+        const status = await statusRes.json();
+        const profile = await profileRes.json();
+        const settings = await settingsRes.json();
+        renderKeyValueList(els.openclawStatusList, [
+          ['Modo', status.mode || 'bridge'],
+          ['Providers', (status.providers || []).join(', ') || '-'],
+          ['Modelos', String((status.models || []).length || 0)],
+          ['Rotas', String(status.routingCount || 0)]
+        ]);
+        renderKeyValueList(els.openclawRoutingList, Object.entries((profile.openclawCompatible||{}).agentRouting || {}).map(([key,val])=>[key, `<code>${val}</code>`]));
+        renderKeyValueList(els.openclawModelsList, Object.entries((profile.openclawCompatible||{}).agentModels || {}).map(([key,val])=>[key, `<code>${val.model}</code>`]));
+        els.openclawJson.value = JSON.stringify(settings.settings || {}, null, 2);
+      } catch (err) {
+        if (els.openclawJson) els.openclawJson.value = `Falha ao carregar painel OpenClaw: ${err.message}`;
+      }
+    }
+    function openOpenClawPanel(){ els.openclawPanel.classList.add('open'); loadOpenClawPanel(); }
+    function closeOpenClawPanel(){ els.openclawPanel.classList.remove('open'); }
+
+
+    let state={token:localStorage.getItem('tna_token')||'',currentSessionId:localStorage.getItem('tna_session_id')||'',sessions:[],pendingAttachments:[],loading:false,activeController:null,memory:null};
+    function saveState(){localStorage.setItem('tna_token',state.token||'');localStorage.setItem('tna_session_id',state.currentSessionId||'')}
+    function resetSessionState(){state.currentSessionId='';state.sessions=[];saveState();renderSessions();els.currentSessionLabel.textContent='nenhuma'}
+    function setLoading(v){state.loading=v;els.featherLoader.classList.toggle('active',!!v);setSendButtonMode(v?'stop':'send');setComposerEnabled(!v);updateScrollDownButton()}
+    function formatBytes(value){const size=Number(value||0);if(size<1024)return size+' B';if(size<1024*1024)return(size/1024).toFixed(1)+' KB';return(size/(1024*1024)).toFixed(1)+' MB'}
+    function renderPendingAttachments(){els.attachmentTray.innerHTML='';state.pendingAttachments.forEach((item,index)=>{const chip=document.createElement('div');chip.className='attachmentChip';chip.innerHTML=`<div><strong>${escapeHtml(item.originalName||item.name||'arquivo')}</strong><span>${item.category||'arquivo'} • ${formatBytes(item.size)}</span></div><button type="button">Remover</button>`;chip.querySelector('button').onclick=()=>{state.pendingAttachments.splice(index,1);renderPendingAttachments()};els.attachmentTray.appendChild(chip)})}
+    function createAttachmentSummary(attachments){if(!attachments.length)return '';return '\n\nArquivos anexados: '+attachments.map(item=>`${item.originalName||item.name||'arquivo'} (${item.category||'arquivo'})`).join(', ')}
+    function clearConversationDom(){els.messages.querySelectorAll('.msg').forEach(node=>node.remove())}
+    function addMessage(role,text){const div=document.createElement('div');div.className=`msg ${role}`;if(role==='assistant'){renderAssistantBubble(div,text||'')}else{const raw=String(text||'');const parts=raw.split(/\n\nArquivos anexados:/);div.textContent=parts[0];if(parts[1]){const meta=document.createElement('div');meta.className='attachmentMsg';meta.textContent='Arquivos anexados:'+parts[1];div.appendChild(meta)}}els.messages.appendChild(div);updateWelcomeState();scrollMessagesToBottom(true);updateScrollDownButton();return div}
+    function addVisionPreviewMessage(file, prompt, agentLabel){const bubble=addMessage('user', `${prompt||'Analise este print detalhadamente.'}\n\nAgente visual: ${agentLabel}`);const wrapper=document.createElement('div');wrapper.className='visionPreview';const img=document.createElement('img');img.src=URL.createObjectURL(file);img.alt=file.name||'print enviado';img.onload=()=>setTimeout(()=>URL.revokeObjectURL(img.src),1500);const meta=document.createElement('div');meta.className='visionPreviewMeta';meta.textContent=`${file.name||'imagem'} • ${Math.round((file.size||0)/1024)} KB`;wrapper.appendChild(img);wrapper.appendChild(meta);bubble.appendChild(wrapper);scrollMessagesToBottom(true);return bubble}
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+    function createAssistantBubble(){const stickToBottom=shouldStickToBottom();const bubble=addMessage('assistant','');bubble.classList.add('typing');bubble._rawText='';bubble._typingQueue='';bubble._typingLoop=null;bubble._streamDone=false;bubble._stickToBottom=stickToBottom;return bubble}
+    function queueAssistantText(bubble,text){if(!bubble||!text)return;bubble._typingQueue=(bubble._typingQueue||'')+text;bubble._rawText=(bubble._rawText||'')+text;if(bubble._typingLoop)return;const tick=async()=>{bubble._typingLoop=true;while(bubble._typingQueue&&bubble._typingQueue.length){const take=Math.min(4,bubble._typingQueue.length);const piece=bubble._typingQueue.slice(0,take);bubble._typingQueue=bubble._typingQueue.slice(take);bubble.textContent+=piece;bubble._stickToBottom=bubble._stickToBottom!==false&&shouldStickToBottom(150);if(bubble._stickToBottom)scrollMessagesToBottom(true);updateScrollDownButton();const delay=/[\.!?]/.test(piece)?32:/[,;:]/.test(piece)?24:14;await sleep(delay)}bubble._typingLoop=null;if(bubble._streamDone)finishAssistantBubble(bubble)};tick()}
+    function finishAssistantBubble(bubble){if(!bubble)return;const finalize=()=>{const finalText=bubble._rawText||bubble.textContent||'';bubble.classList.remove('typing');bubble.classList.add('stream-complete');bubble.style.overflow='visible';bubble.style.height='auto';bubble.style.maxHeight='none';renderAssistantBubble(bubble,finalText);scrollMessagesToBottom(bubble._stickToBottom!==false);updateScrollDownButton()};if(bubble._typingLoop||(bubble._typingQueue&&bubble._typingQueue.length)){bubble._streamDone=true;return}setTimeout(finalize,140)}
+    async function api(url,options={}){const headers=Object.assign({},options.headers||{});if(state.token)headers.Authorization=`Bearer ${state.token}`;if(options.body&&!headers['Content-Type']&&!(options.body instanceof FormData))headers['Content-Type']='application/json';const response=await fetch(url,{...options,headers});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||data.details||'Falha');return data}
+    async function loadHealth(){
+      try{
+        const data=await api('/api/v1/health',{headers:{}});
+        els.statusApi.textContent=`API: ${data.service||'technet-ai'} • ${data.environment||'local'}`;
+        els.sendBtn.disabled=false;
+      }catch{
+        els.statusApi.textContent='API: indisponível';
+        els.authStatus.textContent='Backend não respondeu. Inicie a API local para enviar mensagens.';
+        els.sendBtn.disabled=false;
+      }
+    }
+    async function loadModels(){try{const data=await api('/api/v1/models',{headers:{}});const models=data.models||[];models.forEach(model=>{const option=document.createElement('option');option.value=model.name;option.textContent=model.name;els.modelSelect.appendChild(option)})}catch{}}
+    function renderMemory(){const memory=state.memory||null;if(!els.memoryStatus||!els.memorySummary||!els.memoryTags)return;if(!memory){els.memoryStatus.textContent='inativa';els.memorySummary.textContent='Ainda sem contexto aprendido nesta conta.';els.memoryTags.innerHTML='';return}const factCount=(memory.learnedMemory||[]).length;els.memoryStatus.textContent=factCount?`${factCount} itens`:'vazia';els.memorySummary.textContent=memory.profileSummary||'A IA ainda não consolidou um perfil útil. Converse mais para ela aprender seu contexto.';const tags=[]; (memory.projects||[]).slice(-3).forEach(item=>tags.push(`<span class="memoryTag">📦 ${escapeHtml(item)}</span>`)); (memory.preferences||[]).slice(-3).forEach(item=>tags.push(`<span class="memoryTag">🎯 ${escapeHtml(item)}</span>`)); (memory.constraints||[]).slice(-2).forEach(item=>tags.push(`<span class="memoryTag">🛡 ${escapeHtml(item)}</span>`)); (memory.goals||[]).slice(-2).forEach(item=>tags.push(`<span class="memoryTag">🚀 ${escapeHtml(item)}</span>`)); els.memoryTags.innerHTML=tags.join('')||'<div class="small">Sem preferências aprendidas ainda.</div>'; }
+    async function refreshMemory(){if(!state.token){state.memory=null;renderMemory();return}try{const data=await api('/api/v1/memory');state.memory=data.memory||null}catch(error){console.error(error);state.memory=null}renderMemory()}
+    async function refreshMe(){if(!state.token){els.statusUser.textContent='Modo: aberto';els.statusUsage.textContent='Open Pro para todos';els.authStatus.textContent='Modo aberto ativo. Pergunte direto.';els.currentSessionLabel.textContent='nenhuma';els.tokenPreview.textContent='token será criado automaticamente';return}try{const data=await api('/api/v1/auth/me');els.statusUser.textContent=data.user.email;els.statusUsage.textContent=`Uso: ${data.usage.usedToday}/${data.usage.limit} • plano ${data.usage.effectivePlan}`;els.authStatus.textContent=`Pronto para uso livre • identidade atual ${data.user.email}`}catch{state.token='';resetSessionState();saveState()}els.currentSessionLabel.textContent=state.currentSessionId||'nenhuma';els.tokenPreview.textContent=state.token?state.token.slice(0,28)+'...':'token será criado automaticamente'}
+    function renderSessions(){els.sessionList.innerHTML='';if(!state.sessions.length){const empty=document.createElement('div');empty.className='small';empty.textContent='Nenhuma conversa ainda.';els.sessionList.appendChild(empty);return}state.sessions.forEach(session=>{const btn=document.createElement('button');btn.className='historyBtn'+(session.id===state.currentSessionId?' active':'');btn.innerHTML=`<div>${session.title||'Nova conversa'}</div><span class="small">${new Date(session.updatedAt).toLocaleString('pt-BR')}</span>`;btn.onclick=()=>openSession(session.id);els.sessionList.appendChild(btn)})}
+    async function loadSessions(){if(!state.token){state.sessions=[];renderSessions();return}try{const data=await api('/api/v1/chat/sessions');state.sessions=data.sessions||[];renderSessions()}catch(e){console.error(e)}}
+    async function openSession(id){if(!id)return;try{const data=await api(`/api/v1/chat/${id}`);state.currentSessionId=data.id||id;saveState();clearConversationDom();(data.messages||[]).forEach(msg=>addMessage(msg.role==='assistant'?'assistant':'user',msg.content));updateWelcomeState();renderSessions();await refreshMe();scrollMessagesToBottom(true);updateScrollDownButton()}catch(error){const msg=String(error&&error.message||'');if(msg.includes('Sessão não encontrada')){state.currentSessionId='';saveState();clearConversationDom();updateWelcomeState();renderSessions();await loadSessions();await refreshMe();return}throw error}}
+    async function ensureOpenAccess(forceNewToken=false){
+      if(state.token && !forceNewToken){
+        try{
+          await api('/api/v1/auth/me',{headers:{}});
+          return;
+        }catch(error){
+          state.token='';
+          resetSessionState();
+          saveState();
+        }
+      }
+      const attempts=[
+        {path:'/api/v1/auth/demo',method:'POST',body:'{}'},
+        {path:'/api/v1/auth/demo',method:'GET'},
+        {path:'/api/v1/demo',method:'POST',body:'{}'},
+        {path:'/api/v1/demo',method:'GET'}
+      ];
+      let lastError=null;
+      const previousToken = state.token || '';
+      for(const attempt of attempts){
+        try{
+          const data=await api(attempt.path,{method:attempt.method,headers:{},body:attempt.body});
+          if(data?.token){
+            state.token=data.token;
+            if(!previousToken || previousToken!==data.token){
+              resetSessionState();
+            }
+            saveState();
+            await refreshMe();
+            await loadSessions();
+            return;
+          }
+        }catch(error){ lastError=error; }
+      }
+      throw lastError || new Error('Falha ao criar acesso demo');
+    }
+    async function uploadAttachments(files){if(!files||!files.length)return;if(!state.token)await ensureOpenAccess();const form=new FormData();Array.from(files).forEach(file=>form.append('attachments',file));const response=await fetch(window.tngApiUrl('/api/v1/uploads/attachments'),{method:'POST',headers:state.token?{Authorization:`Bearer ${state.token}`}:{},body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||data.details||'Falha ao enviar anexos');state.pendingAttachments.push(...(data.uploads||[]));renderPendingAttachments();els.authStatus.textContent=`${state.pendingAttachments.length} arquivo(s) pronto(s) para contexto.`}
+    function isSessionError(error){const msg=String(error&&error.message||'');return /Sessão não encontrada|session not found|HTTP 404/i.test(msg);}
+    function isAuthError(error){const msg=String(error&&error.message||'');return /Token inválido|token inválido|expirado|HTTP 401/i.test(msg);}
+    async function sendMessage(){
+      if(state.loading){
+        state.activeController?.abort();
+        return;
+      }
+      const message=els.messageInput.value.trim();
+      if(!message && !state.pendingAttachments.length)return;
+      try{
+        await ensureOpenAccess();
+      }catch(error){
+        setActiveAgent('default','error');
+        addMessage('assistant','Erro: a API não respondeu. Verifique se https://api.technetgame.com.br/api/health abre no navegador.');
+        els.authStatus.textContent='API indisponível. Verifique a conexão com https://api.technetgame.com.br.';
+        return;
+      }
+      setLoading(true);
+      const attachments=[...state.pendingAttachments];
+      const outgoingMessage=message||'Analise os arquivos anexados.';
+      addMessage('user',outgoingMessage+createAttachmentSummary(attachments));
+      els.messageInput.value='';
+      autoResizeTextarea();
+      const requestedModel=els.modelSelect.value||undefined;
+      const useStreaming=els.streamSelect.value==='on';
+      const predictedAgents=predictAgentsFromMessage(outgoingMessage);
+      const predictedAgent=predictedAgents[0] || 'default';
+      setActiveAgent(predictedAgent,true,predictedAgents);
+
+      const runOnce = async () => {
+        if(useStreaming){
+          const bubble=createAssistantBubble();
+          const controller=new AbortController();
+          state.activeController=controller;
+          const response=await fetch(window.tngApiUrl('/api/v1/chat/stream'),{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${state.token}`},
+            body:JSON.stringify({message:outgoingMessage,sessionId:state.currentSessionId||undefined,model:requestedModel,attachments}),
+            signal:controller.signal
+          });
+          if(!response.ok||!response.body){
+            const data=await response.json().catch(()=>({}));
+            throw new Error(data.error||data.details||`HTTP ${response.status}`||'Falha ao iniciar streaming');
+          }
+          const reader=response.body.getReader();
+          const decoder=new TextDecoder('utf-8');
+          let buffer='';
+          while(true){
+            const {done,value}=await reader.read();
+            if(done)break;
+            buffer+=decoder.decode(value,{stream:true});
+            const chunks=buffer.split('
+
+');
+            buffer=chunks.pop()||'';
+            for(const chunk of chunks){
+              const line=chunk.split('
+').find(part=>part.startsWith('data: '));
+              if(!line)continue;
+              const payload=JSON.parse(line.slice(6));
+              if(payload.type==='agent'&&payload.agentSystem){
+                setActiveAgent(payload.agentSystem,'busy',resolvePresenceAgents({backendAgent:payload.agentSystem,predictedAgents,responseText:bubble?.dataset?.raw||bubble?.textContent||''}));
+              } else if(payload.type==='token'){
+                queueAssistantText(bubble,payload.token);
+              } else if(payload.type==='done'){
+                state.currentSessionId=payload.sessionId;
+                saveState();
+                await loadSessions();
+                await refreshMe();
+                await refreshMemory();
+                const resolvedAgent=resolvePresenceAgent({backendAgent:payload.agentSystem,predictedAgent,responseText:bubble?.dataset?.raw||bubble?.textContent||''});
+                const resolvedAgents=resolvePresenceAgents({backendAgent:payload.agentSystem,predictedAgents,predictedAgent,responseText:bubble?.dataset?.raw||bubble?.textContent||''});
+                setActiveAgent(resolvedAgent,'notification',resolvedAgents);
+                finishAssistantBubble(bubble);
+              } else if(payload.type==='error') {
+                throw new Error(payload.error||'Erro no streaming');
+              }
+            }
+          }
+          if(buffer.trim()){
+            try{
+              const line=buffer.split('
+').find(part=>part.startsWith('data: '));
+              if(line){
+                const payload=JSON.parse(line.slice(6));
+                if(payload.type==='token')queueAssistantText(bubble,payload.token);
+                if(payload.type==='done'){
+                  state.currentSessionId=payload.sessionId;
+                  saveState();
+                  await loadSessions();
+                  await refreshMe();
+                  await refreshMemory();
+                }
+              }
+            }catch{}
+          }
+          finishAssistantBubble(bubble);
+        } else {
+          const data=await api('/api/v1/chat',{method:'POST',body:JSON.stringify({message:outgoingMessage,sessionId:state.currentSessionId||undefined,model:requestedModel,attachments})});
+          const resolvedAgent=resolvePresenceAgent({backendAgent:data.agentSystem,predictedAgent,responseText:data.resposta||''});
+          const resolvedAgents=resolvePresenceAgents({backendAgent:data.agentSystem,predictedAgents,predictedAgent,responseText:data.resposta||''});
+          setActiveAgent(resolvedAgent,'notification',resolvedAgents);
+          state.currentSessionId=data.sessionId;
+          saveState();
+          const bubble=createAssistantBubble();
+          queueAssistantText(bubble,data.resposta||'(sem resposta)');
+          finishAssistantBubble(bubble);
+          await loadSessions();
+          await refreshMe();
+        }
+      };
+
+      try{
+        await runOnce();
+        state.pendingAttachments=[];
+        renderPendingAttachments();
+        els.authStatus.textContent='Pronto para uso livre. Continue a conversa ou anexe mais contexto.';
+      }catch(error){
+        const messageText=String(error?.message||'');
+        if(isAuthError(error)){
+          state.token='';
+          resetSessionState();
+          saveState();
+          try{
+            await ensureOpenAccess(true);
+            await runOnce();
+            state.pendingAttachments=[];
+            renderPendingAttachments();
+            els.authStatus.textContent='Acesso demo renovado automaticamente.';
+          }catch(innerError){
+            setActiveAgent(predictedAgent,'error',predictedAgents);
+            addMessage('assistant','Erro: '+innerError.message);
+          }
+        }else if(isSessionError(error)){
+          resetSessionState();
+          try{
+            await runOnce();
+            state.pendingAttachments=[];
+            renderPendingAttachments();
+            els.authStatus.textContent='Sessão reiniciada automaticamente.';
+          }catch(innerError){
+            setActiveAgent(predictedAgent,'error',predictedAgents);
+            addMessage('assistant','Erro: '+innerError.message);
+          }
+        }else if(error.name==='AbortError'){
+          setActiveAgent(predictedAgent,'warning',predictedAgents);
+          addMessage('assistant','Geração interrompida.');
+          els.authStatus.textContent='Resposta interrompida manualmente.';
+        }else{
+          setActiveAgent(predictedAgent,'error',predictedAgents);
+          addMessage('assistant','Erro: '+messageText);
+        }
+      }finally{
+        state.activeController=null;
+        setLoading(false);
+        if(!state.loading)updateScrollDownButton();
+      }
+    }
+
+    async function sendVisionImage(file){
+      if(!file)return;
+      if(state.loading)return;
+      try{
+        await ensureOpenAccess();
+      }catch(error){
+        setActiveAgent('default','error');
+        addMessage('assistant','Erro na análise visual: a API não respondeu. Verifique se https://api.technetgame.com.br/api/health abre no navegador.');
+        els.authStatus.textContent='API indisponível para visão.';
+        if(els.visionImageInput) els.visionImageInput.value='';
+        return;
+      }
+      const visionAgent=(els.visionAgentSelect?.value||'default').trim();
+      const agentLabel=(AGENT_UI[visionAgent]||AGENT_UI.default).label;
+      const prompt=(els.messageInput.value||'').trim()||'Analise este print detalhadamente, identifique o que importa e diga como resolver ou melhorar.';
+      setLoading(true);
+      addVisionPreviewMessage(file,prompt,agentLabel);
+      els.messageInput.value='';
+      autoResizeTextarea();
+      setActiveAgent(visionAgent,'busy',[visionAgent]);
+      const runVision = async () => {
+        const form=new FormData();
+        form.append('image',file);
+        form.append('message',prompt);
+        form.append('sessionId',state.currentSessionId||'');
+        form.append('visionAgent',visionAgent);
+        const response=await fetch(window.tngApiUrl('/api/v1/chat/vision'),{method:'POST',headers:state.token?{Authorization:`Bearer ${state.token}`}:{},body:form});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok) throw new Error(data.error||data.details||`HTTP ${response.status}`||'Falha ao analisar print');
+        state.currentSessionId=data.sessionId||state.currentSessionId;
+        saveState();
+        const bubble=createAssistantBubble();
+        queueAssistantText(bubble,`**${data.agentName||agentLabel}**
+
+${data.resposta||data.answer||'(sem resposta)'}`);
+        finishAssistantBubble(bubble);
+        await loadSessions();
+        await refreshMe();
+        await refreshMemory();
+        els.authStatus.textContent='Print analisado com sucesso.';
+        const visionResolvedAgent=resolvePresenceAgent({backendAgent:data.agentSystem,predictedAgent:visionAgent,responseText:data.resposta||data.answer||''});
+        const visionResolvedAgents=resolvePresenceAgents({backendAgent:data.agentSystem,predictedAgents:[visionAgent],predictedAgent:visionAgent,responseText:data.resposta||data.answer||''});
+        setActiveAgent(visionResolvedAgent,'success',visionResolvedAgents);
+      };
+      try{
+        await runVision();
+      }catch(error){
+        if(isAuthError(error)){
+          state.token='';
+          resetSessionState();
+          saveState();
+          try{ await ensureOpenAccess(true); await runVision(); }
+          catch(innerError){ setActiveAgent(visionAgent,'error',[visionAgent]); addMessage('assistant','Erro na análise visual: '+innerError.message); }
+        }else if(isSessionError(error)){
+          resetSessionState();
+          try{ await runVision(); }
+          catch(innerError){ setActiveAgent(visionAgent,'error',[visionAgent]); addMessage('assistant','Erro na análise visual: '+innerError.message); }
+        }else{
+          setActiveAgent(visionAgent,'error',[visionAgent]);
+          addMessage('assistant','Erro na análise visual: '+error.message);
+        }
+      }finally{
+        setLoading(false);
+        if(els.visionImageInput) els.visionImageInput.value='';
+      }
+    }
+
+    async function clearCurrentSession(){const currentId=state.currentSessionId;state.currentSessionId='';saveState();clearConversationDom();state.pendingAttachments=[];renderPendingAttachments();updateWelcomeState();setActiveAgent('default',false);updateScrollDownButton();if(!currentId){await loadSessions();await refreshMe();return}try{await api(`/api/v1/chat/${currentId}`,{method:'DELETE'})}catch(error){const msg=String(error&&error.message||'');if(!msg.includes('Sessão não encontrada'))throw error}await loadSessions();await refreshMe()}
+    els.sendBtn.onclick=sendMessage;
+    document.getElementById('newChatBtn').onclick=()=>{state.currentSessionId='';state.pendingAttachments=[];saveState();clearConversationDom();renderPendingAttachments();updateWelcomeState();setActiveAgent('default',false);refreshMe();renderSessions();scrollMessagesToBottom(true);updateScrollDownButton()};
+    els.navOpenClaw?.addEventListener('click', openOpenClawPanel);
+    els.openclawRefreshBtn?.addEventListener('click', loadOpenClawPanel);
+    els.openclawCloseBtn?.addEventListener('click', closeOpenClawPanel);
+    els.clearSessionBtn.onclick=clearCurrentSession;
+    els.messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+    els.messageInput.addEventListener('input',()=>{autoResizeTextarea()});
+    els.messages.addEventListener('scroll',()=>{updateScrollDownButton()});
+    els.scrollDownBtn.addEventListener('click',()=>{scrollMessagesToBottom(true);updateScrollDownButton()});
+    document.querySelectorAll('[data-prompt]').forEach(btn=>{btn.addEventListener('click',()=>{els.messageInput.value=btn.dataset.prompt||'';autoResizeTextarea();els.messageInput.focus()})});
+    els.attachmentInput.addEventListener('change',async event=>{const files=event.target.files;event.target.value='';if(!files||!files.length)return;try{await uploadAttachments(files)}catch(error){alert(error.message)}});
+    els.visionImageInput?.addEventListener('change',async event=>{const file=(event.target.files||[])[0];if(!file)return;try{await sendVisionImage(file)}catch(error){alert(error.message)}});
+    els.refreshMemoryBtn?.addEventListener('click',()=>refreshMemory());
+    els.clearMemoryBtn?.addEventListener('click',async()=>{if(!state.token)return;const ok=window.confirm('Limpar a memória aprendida desta conta demo?');if(!ok)return;try{await api('/api/v1/memory',{method:'DELETE'});state.memory=null;renderMemory();els.authStatus.textContent='Memória limpa com sucesso.';}catch(error){alert(error.message)}});
+    (function fixPrimaryLinks(){
+      const isFileLikePath = /\/site\/technet-ai\.html$/i.test(window.location.pathname) || /\/site\/site\/technet-ai\.html$/i.test(window.location.pathname) || /technet-ai\.html$/i.test(window.location.pathname);
+      const weirdLocalPath = /%5csite\/technet-ai\.html$/i.test(window.location.pathname) || /\\site\/technet-ai\.html$/i.test(window.location.pathname);
+      const fileLikeHome = window.location.pathname.replace(/technet-ai\.html.*$/i,'index.html');
+      const homeHref = '/';
+      const adminHref = (isFileLikePath || weirdLocalPath) ? './technet-ai.html?panel=openclaw' : '/admin-ui';
+      const homeLink = document.getElementById('homeLink');
+      const adminLink = document.getElementById('adminLink');
+      if (homeLink) homeLink.setAttribute('href', homeHref);
+      if (adminLink) adminLink.setAttribute('href', adminHref);
+      if (window.location.search.includes('panel=openclaw')) {
+        window.addEventListener('load', () => setTimeout(() => openOpenClawPanel(), 220));
+      }
+    })();
+
+        (async function init(){autoResizeTextarea();updateWelcomeState();updateScrollDownButton();setActiveAgent('planner',false,['planner']);showIdleAgent();await loadHealth();await loadModels();await ensureOpenAccess();await refreshMe();await loadSessions();await refreshMemory();if(state.currentSessionId&&state.token){try{await openSession(state.currentSessionId)}catch(error){console.error(error);state.currentSessionId='';saveState();clearConversationDom();updateWelcomeState()}}setLoading(false)})();
+  </script>
+</body>
+</html>

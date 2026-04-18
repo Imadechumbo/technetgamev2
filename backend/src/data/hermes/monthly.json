@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "period": "monthly",
+  "summary": "",
+  "trends": [],
+  "ranking": [],
+  "weights": {},
+  "penalties": [],
+  "agentStats": {},
+  "providers": {
+    "lastUsed": null,
+    "fallbackUsed": false,
+    "failures": []
+  },
+  "totals": {
+    "itemsProcessed": 0,
+    "categoriesSeen": 0,
+    "agentsTracked": 6
+  },
+  "learning": {
+    "runs": 0,
+    "lastRunAt": null,
+    "status": "idle"
+  },
+  "updatedAt": "",
+  "generatedAt": ""
+}

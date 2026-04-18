@@ -1,0 +1,60 @@
+name: deploy-production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_DIST_DIR: ${{ secrets.FRONTEND_DIST_DIR }}
+      FRONTEND_SNAPSHOT_ROOT: ${{ runner.temp }}/snapshots/frontend
+      BACKEND_SNAPSHOT_ROOT: ${{ runner.temp }}/snapshots/backend
+      SNAPSHOT_S3_BUCKET: ${{ secrets.SNAPSHOT_S3_BUCKET }}
+      CF_PAGES_PROJECT: technetgame
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      AWS_EB_BUNDLE: ${{ secrets.AWS_EB_BUNDLE }}
+      AWS_EB_APPLICATION: technetgame
+      AWS_EB_ENVIRONMENT: Technetgame-env-1
+      AWS_EB_S3_BUCKET: ${{ secrets.AWS_EB_S3_BUCKET }}
+      AWS_EB_S3_KEY: technetgame/builds/${{ github.run_id }}.zip
+      AWS_EB_VERSION_LABEL: tg-${{ github.run_id }}
+      AWS_EB_HEALTH_URL: ${{ secrets.AWS_EB_HEALTH_URL }}
+      API_PROD_HEALTH_URL: ${{ secrets.API_PROD_HEALTH_URL }}
+      FRONTEND_PROD_URL: ${{ secrets.FRONTEND_PROD_URL }}
+      POST_DEPLOY_MAX_WAIT: "300"
+      POST_DEPLOY_POLL: "15"
+      ENABLE_AUTO_HEAL: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install wrangler
+        run: npm install -g wrangler
+      - name: Install deps
+        run: |
+          npm install
+          npx playwright install chromium
+      - name: Pull snapshots
+        run: python scripts/pull_snapshots_from_s3.py
+      - name: Capture baseline
+        run: |
+          node ui/capture_ui.mjs
+          node ui/update_baseline.mjs
+      - name: Mobile hard lock precheck
+        run: npm run mobile:validate
+      - name: Performance guard precheck
+        run: npm run perf:validate
+      - name: Deploy frontend
+        run: python scripts/deploy_frontend_cloudflare.py
+      - name: Purge Cloudflare cache
+        run: python scripts/purge_cloudflare_cache.py
+      - name: Deploy backend
+        run: python scripts/deploy_backend_aws_eb.py
+      - name: Validate production URLs
+        run: python scripts/post_deploy_validate.py
+      - name: Final gate
+        run: python safe_update.py --project technetgame --mode deploy --env prod

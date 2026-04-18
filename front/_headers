@@ -1,0 +1,28 @@
+/assets/js/runtime-config.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.html
+  Cache-Control: public, max-age=300
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+/technet-ai
+  Cache-Control: no-cache
+/technet-ai/
+  Cache-Control: no-cache
+/technet-ai.html
+  Cache-Control: no-cache
+/admin-ui
+  Cache-Control: no-cache
+/admin-ui/
+  Cache-Control: no-cache
+
+/relatorios/*
+  Cache-Control: no-cache, no-store, must-revalidate
