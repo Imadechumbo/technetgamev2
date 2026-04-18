@@ -53,10 +53,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node 18
+      # ✅ FIX AQUI
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: "20.x"
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
@@ -141,7 +142,7 @@ jobs:
 
       - name: Skip frontend rollback because stable ZIP is missing
         if: failure() && (inputs.release_track == 'front-only' || inputs.release_track == 'full') && steps.check_stable_front_zip.outputs.exists == 'false'
-        run: echo "Rollback frontend ignorado porque não existe baseline estável neste repositório."
+        run: echo "Rollback ignorado (sem baseline)."
 
       - name: Rollback backend to stable app version
         if: failure() && (inputs.release_track == 'back-only' || inputs.release_track == 'full')
