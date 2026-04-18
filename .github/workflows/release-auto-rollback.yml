@@ -40,12 +40,13 @@ jobs:
       AWS_S3_DEPLOY_BUCKET: ${{ vars.AWS_S3_DEPLOY_BUCKET }}
       BACKEND_VERSION_LABEL: tg-${{ github.run_number }}-${{ github.sha }}
       STABLE_BACKEND_APP_VERSION_LABEL: ${{ vars.STABLE_BACKEND_APP_VERSION_LABEL }}
-      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
       POST_DEPLOY_STABILIZE_SECONDS: ${{ inputs.post_deploy_stabilize_seconds }}
       STABLE_FRONT_ZIP_PATH: ${{ inputs.stable_front_zip_path }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,7 +61,7 @@ jobs:
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install npm deps
         run: npm ci
@@ -85,7 +86,7 @@ jobs:
       - name: Deploy frontend to Cloudflare Pages
         if: ${{ inputs.release_track == 'front-only' || inputs.release_track == 'full' }}
         run: |
-          npx wrangler pages deploy ./frontend \
+          npx wrangler pages deploy ./front \
             --project-name "$CLOUDFLARE_PAGES_PROJECT" \
             --branch main
 
@@ -112,22 +113,35 @@ jobs:
           python safe_update.py --project technetgame --mode full --env prod
           python scripts/assert_release_pass.py
 
-      - name: Rollback frontend to stable ZIP
+      - name: Check stable frontend ZIP exists
         if: failure() && (inputs.release_track == 'front-only' || inputs.release_track == 'full')
+        id: check_stable_front_zip
+        run: |
+          if [ -f "${{ inputs.stable_front_zip_path }}" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "STABLE_FRONT_ZIP ausente: ${{ inputs.stable_front_zip_path }}"
+          fi
+
+      - name: Rollback frontend to stable ZIP
+        if: failure() && (inputs.release_track == 'front-only' || inputs.release_track == 'full') && steps.check_stable_front_zip.outputs.exists == 'true'
         run: |
           rm -rf .rollback_front
           mkdir -p .rollback_front
           python - <<'PY'
           from zipfile import ZipFile
           from pathlib import Path
-          src = Path('${{ inputs.stable_front_zip_path }}')
-          if not src.exists():
-              raise SystemExit(f'STABLE_FRONT_ZIP ausente: {src}')
-          with ZipFile(src, 'r') as zf:
-              zf.extractall('.rollback_front')
+          src = Path("${{ inputs.stable_front_zip_path }}")
+          with ZipFile(src, "r") as zf:
+              zf.extractall(".rollback_front")
           PY
           npx wrangler pages deploy ./.rollback_front --project-name "$CLOUDFLARE_PAGES_PROJECT" --branch main
           python scripts/purge_cloudflare_cache.py
+
+      - name: Skip frontend rollback because stable ZIP is missing
+        if: failure() && (inputs.release_track == 'front-only' || inputs.release_track == 'full') && steps.check_stable_front_zip.outputs.exists == 'false'
+        run: echo "Rollback frontend ignorado porque não existe baseline estável neste repositório."
 
       - name: Rollback backend to stable app version
         if: failure() && (inputs.release_track == 'back-only' || inputs.release_track == 'full')
