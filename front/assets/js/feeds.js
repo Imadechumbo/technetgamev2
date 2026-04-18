@@ -268,12 +268,63 @@ window.TechNetGameFeeds = {
         return !badPatterns.some((pattern) => lower.includes(pattern));
     },
 
+    localNewsMap: {
+        'openai-proposta-proteger-trabalhadores-gera-desconfianca': '/news/openai-proposta-proteger-trabalhadores-gera-desconfianca.html',
+        'cloudflare-rede-global-seguranca-infraestrutura-internet': '/news/cloudflare-rede-global-seguranca-infraestrutura-internet.html',
+        'anthropic-mythos-vazamento-riscos-ciberseguranca': '/news/anthropic-mythos-vazamento-riscos-ciberseguranca.html'
+    },
+
+    normalizeNewsUrl(url = '', title = '') {
+        const rawUrl = String(url || '').trim();
+        const rawTitle = String(title || '').trim();
+        const knownTitleMap = {
+            'openai propõe proteção a trabalhadores — mas levanta suspeitas no mercado': this.localNewsMap['openai-proposta-proteger-trabalhadores-gera-desconfianca'],
+            'cloudflare consolida domínio na segurança e infraestrutura da internet': this.localNewsMap['cloudflare-rede-global-seguranca-infraestrutura-internet'],
+            'vazamento de modelo da anthropic acende alerta global de cibersegurança': this.localNewsMap['anthropic-mythos-vazamento-riscos-ciberseguranca']
+        };
+
+        const normalizedTitle = rawTitle.toLowerCase();
+        if (knownTitleMap[normalizedTitle]) {
+            return knownTitleMap[normalizedTitle];
+        }
+
+        if (!rawUrl) return '#';
+
+        try {
+            const parsed = new URL(rawUrl, window.location.origin);
+            const isSameOrigin = parsed.origin === window.location.origin;
+            const isTechNetGame = /(^|\.)technetgame\.com\.br$/i.test(parsed.hostname);
+            const pathname = parsed.pathname.replace(/\/+/g, '/');
+
+            if ((isSameOrigin || isTechNetGame) && pathname.toLowerCase().startsWith('/news/')) {
+                const cleanPath = pathname.replace(/\/+$|\.html$/i, '');
+                const slug = cleanPath.split('/').filter(Boolean).pop() || '';
+                if (this.localNewsMap[slug]) {
+                    return this.localNewsMap[slug];
+                }
+                return `${cleanPath}.html`;
+            }
+
+            return parsed.toString();
+        } catch {
+            if (/^\/news\//i.test(rawUrl)) {
+                const cleanPath = rawUrl.replace(/\/+$|\.html$/i, '');
+                const slug = cleanPath.split('/').filter(Boolean).pop() || '';
+                if (this.localNewsMap[slug]) {
+                    return this.localNewsMap[slug];
+                }
+                return `${cleanPath}.html`;
+            }
+            return rawUrl;
+        }
+    },
+
     normalizeApiItems(payload, defaultSource = 'Fonte aberta') {
         const rawItems = Array.isArray(payload?.items) ? payload.items : (Array.isArray(payload) ? payload : []);
         return rawItems.map((item, index) => ({
             id: item.id || `${item.url || item.link || defaultSource}-${index}`,
             title: item.title || 'Sem título',
-            url: item.url || item.link || '#',
+            url: this.normalizeNewsUrl(item.url || item.link || '#', item.title || ''),
             summary: item.summary || item.description || 'Leia a matéria completa na fonte.',
             source: item.source || defaultSource,
             sourceSlug: item.sourceSlug || '',
