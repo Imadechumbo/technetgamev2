@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FRONTEND_DIST_DIR: ${{ secrets.FRONTEND_DIST_DIR }}
-      FRONTEND_SNAPSHOT_ROOT: ${{ runner.temp }}/snapshots/frontend
-      BACKEND_SNAPSHOT_ROOT: ${{ runner.temp }}/snapshots/backend
       SNAPSHOT_S3_BUCKET: ${{ secrets.SNAPSHOT_S3_BUCKET }}
       CF_PAGES_PROJECT: technetgame-aws
       CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
@@ -39,6 +37,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
+
+      - name: Set snapshot paths
+        run: |
+          echo "FRONTEND_SNAPSHOT_ROOT=${{ runner.temp }}/snapshots/frontend" >> $GITHUB_ENV
+          echo "BACKEND_SNAPSHOT_ROOT=${{ runner.temp }}/snapshots/backend" >> $GITHUB_ENV
 
       - name: Install Wrangler
         run: npm install -g wrangler
