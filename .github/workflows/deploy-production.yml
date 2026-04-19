@@ -52,7 +52,7 @@ jobs:
           npx playwright install chromium
 
       - name: Pull snapshots
-        run: python scripts/pull_snapshots_from_s3.py
+        run: echo "Skipping snapshots"
 
       - name: Capture baseline
         run: |
