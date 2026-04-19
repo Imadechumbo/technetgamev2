@@ -52,19 +52,6 @@ function resolveToken(req) {
   return raw || null;
 }
 
-function parseAttachmentsField(rawValue) {
-  if (!rawValue) return [];
-  if (Array.isArray(rawValue)) return rawValue;
-  if (typeof rawValue === 'object') return [rawValue];
-  if (typeof rawValue !== 'string') return [];
-  try {
-    const parsed = JSON.parse(rawValue);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (_error) {
-    return [];
-  }
-}
-
 router.get('/health', (_req, res) => res.json({ ok: true, status: 'ok', service: 'technet-ai-backend', environment: process.env.NODE_ENV || 'development', time: new Date().toISOString() }));
 router.get('/models', (_req, res) => res.json({ ok: true, models: listModels() }));
 router.get('/vision/agents', (_req, res) => res.json({ ok: true, agents: listVisionAgents() }));
@@ -89,7 +76,7 @@ router.delete('/memory', optionalAuth, (req, res) => {
   if (!token) return res.json({ ok: true, cleared: true });
   return res.json(clearMemoryForToken(token));
 });
-router.post('/uploads/attachments', optionalAuth, upload.array('attachments', 10), async (req, res) => { try { const files = Array.isArray(req.files) ? req.files : []; const uploads = await createAttachmentRecords(files); res.json({ ok: true, uploads }); } catch (e) { res.status(500).json({ ok: false, error: e.message }); } });
+router.post('/uploads/attachments', optionalAuth, upload.array('attachments', 10), (req, res) => { const files = Array.isArray(req.files) ? req.files : []; res.json({ ok: true, uploads: createAttachmentRecords(files) }); });
 router.get('/chat/sessions', optionalAuth, (req, res) => {
   const token = resolveToken(req);
   if (!token) return res.json({ ok: true, sessions: [] });
@@ -98,8 +85,62 @@ router.get('/chat/sessions', optionalAuth, (req, res) => {
 router.get('/chat/:id', optionalAuth, (req, res, next) => { try { const token = resolveToken(req); if (!token) return res.status(404).json({ ok: false, error: 'Sessão não encontrada' }); res.json({ ok: true, ...getSessionById(token, req.params.id) }); } catch (error) { next(error); } });
 router.delete('/chat/:id', optionalAuth, (req, res, next) => { try { const token = resolveToken(req); if (!token) return res.json({ ok: true, id: req.params.id, skipped: true }); res.json(deleteSessionById(token, req.params.id)); } catch (error) { next(error); } });
 router.post('/chat', optionalAuth, async (req, res, next) => { try { const result = await generateAssistantAnswer({ token: resolveToken(req), message: String(req.body.message || '').trim(), sessionId: req.body.sessionId, model: req.body.model, mode: req.body.mode, agent: req.body.agent, provider: req.body.provider, attachments: Array.isArray(req.body.attachments) ? req.body.attachments : [] }); res.json({ ok: true, ...result }); } catch (error) { next(error); } });
-router.post('/chat/vision', optionalAuth, upload.single('image'), async (req, res, next) => { try { const attachments = parseAttachmentsField(req.body.attachments); const result = await generateVisionAnswer({ token: resolveToken(req), message: String(req.body.message || '').trim(), sessionId: req.body.sessionId, model: req.body.model, mode: req.body.mode, agent: req.body.agent, provider: req.body.provider, visionAgent: String(req.body.visionAgent || req.query.agent || 'default').trim(), imageFile: req.file, attachments }); res.json({ ok: true, ...result }); } catch (error) { next(error); } });
-router.post('/vision', optionalAuth, upload.single('image'), async (req, res, next) => { try { const attachments = parseAttachmentsField(req.body.attachments); const result = await generateVisionAnswer({ token: resolveToken(req), message: String(req.body.message || '').trim(), sessionId: req.body.sessionId, model: req.body.model, mode: req.body.mode, agent: req.body.agent, provider: req.body.provider, visionAgent: String(req.body.visionAgent || req.query.agent || 'default').trim(), imageFile: req.file, attachments }); res.json({ ok: true, ...result }); } catch (error) { next(error); } });
+router.post('/chat/vision', optionalAuth, upload.single('image'), async (req, res, next) => {
+  try {
+    // Gate 1: imagem obrigatória — 400 se ausente (alinha com vision_contract_gate.py)
+    if (!req.file) {
+      return res.status(400).json({ ok: false, error: 'Envie um arquivo de imagem no campo "image" (multipart/form-data).' });
+    }
+
+    // Gate 2: corrigir null.mimetype — garante mimetype válido antes de passar ao service
+    if (!req.file.mimetype || req.file.mimetype === 'null' || req.file.mimetype === 'undefined') {
+      const ext = String(req.file.originalname || '').split('.').pop().toLowerCase();
+      const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp' };
+      req.file.mimetype = mimeMap[ext] || 'image/png';
+    }
+
+    const result = await generateVisionAnswer({
+      token: resolveToken(req),
+      message: String(req.body.message || '').trim(),
+      sessionId: req.body.sessionId,
+      model: req.body.model,
+      mode: req.body.mode,
+      agent: req.body.agent,
+      provider: req.body.provider,
+      visionAgent: String(req.body.visionAgent || req.query.agent || 'default').trim(),
+      imageFile: req.file,
+    });
+    res.json({ ok: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post('/vision', optionalAuth, upload.single('image'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ ok: false, error: 'Envie um arquivo de imagem no campo "image" (multipart/form-data).' });
+    }
+    if (!req.file.mimetype || req.file.mimetype === 'null' || req.file.mimetype === 'undefined') {
+      const ext = String(req.file.originalname || '').split('.').pop().toLowerCase();
+      const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp' };
+      req.file.mimetype = mimeMap[ext] || 'image/png';
+    }
+    const result = await generateVisionAnswer({
+      token: resolveToken(req),
+      message: String(req.body.message || '').trim(),
+      sessionId: req.body.sessionId,
+      model: req.body.model,
+      mode: req.body.mode,
+      agent: req.body.agent,
+      provider: req.body.provider,
+      visionAgent: String(req.body.visionAgent || req.query.agent || 'default').trim(),
+      imageFile: req.file,
+    });
+    res.json({ ok: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post('/stream', optionalAuth, async (req, res, next) => {
   try {
     const data = await generateAssistantAnswer({ token: resolveToken(req), message: String(req.body.message || '').trim(), sessionId: req.body.sessionId, model: req.body.model, mode: req.body.mode, agent: req.body.agent, provider: req.body.provider, attachments: Array.isArray(req.body.attachments) ? req.body.attachments : [] });
