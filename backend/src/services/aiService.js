@@ -649,7 +649,7 @@ function guessAttachmentCategory(file) {
 
 function extractZipPreview(buffer) {
   try {
-    const AdmZip = (await import('adm-zip')).default;
+    const AdmZip = require('adm-zip');
     const zip = new AdmZip(buffer);
     const entries = zip.getEntries();
     const textExts = /\.(js|ts|jsx|tsx|json|md|txt|html|css|py|java|env|yaml|yml|sh|xml|csv)$/i;
