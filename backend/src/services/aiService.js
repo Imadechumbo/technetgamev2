@@ -351,51 +351,102 @@ async function callVisionProvider({ model, systemPrompt, message, imageFile, pro
 
   const { signal, clear } = buildTimeoutSignal();
 
-  const usedModel = model || VISION_MODEL || 'gemini-2.0-flash';
+  const usedModel = model || VISION_MODEL || 'gpt-4o-mini';
   const mime = String(imageFile.mimetype || imageFile.mimeType || imageFile.type || 'image/png').toLowerCase();
   const base64Data = imageFile.buffer.toString('base64');
 
-  // Usar API nativa do Gemini (suporte real a imagens)
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(usedModel)}:generateContent?key=${encodeURIComponent(VISION_API_KEY)}`;
+  // --- Detectar provider ---
+  // 1. Explícito via env VISION_PROVIDER
+  // 2. Auto-detectar pelo prefixo da key
+  const envProvider = String(process.env.VISION_PROVIDER || 'auto').toLowerCase();
+  let provider;
+  if (envProvider === 'auto') {
+    if (VISION_API_KEY.startsWith('sk-or-')) provider = 'openrouter';
+    else if (VISION_API_KEY.startsWith('AIza')) provider = 'gemini';
+    else if (VISION_API_KEY.startsWith('sk-')) provider = 'openai';
+    else provider = 'openrouter'; // fallback seguro
+  } else {
+    provider = envProvider;
+  }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    signal,
-    body: JSON.stringify({
+  const userText = message || 'Analise este print detalhadamente.';
+  const dataUrl = `data:${mime};base64,${base64Data}`;
+
+  let url, headers, body, parseContent;
+
+  if (provider === 'gemini') {
+    // === GEMINI NATIVO ===
+    url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(usedModel)}:generateContent?key=${encodeURIComponent(VISION_API_KEY)}`;
+    headers = { 'Content-Type': 'application/json' };
+    body = JSON.stringify({
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{
         role: 'user',
         parts: [
-          { text: message || 'Analise este print detalhadamente.' },
+          { text: userText },
           { inline_data: { mime_type: mime, data: base64Data } },
         ],
       }],
       generationConfig: { temperature: 0.2, maxOutputTokens: 900 },
-    }),
-  });
+    });
+    parseContent = (data) => data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  } else {
+    // === OPENAI-COMPATIBLE (openrouter, openai, together, vllm, etc) ===
+    const baseUrl = (VISION_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    url = `${baseUrl}/chat/completions`;
+    headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${VISION_API_KEY}`,
+    };
+    // OpenRouter exige HTTP-Referer e X-Title
+    if (provider === 'openrouter') {
+      headers['HTTP-Referer'] = SITE_URL || 'https://technetgame.com.br';
+      headers['X-Title'] = 'TechNetGame Vision';
+    }
+    body = JSON.stringify({
+      model: usedModel,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: userText },
+            { type: 'image_url', image_url: { url: dataUrl } },
+          ],
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 900,
+    });
+    parseContent = (data) => data?.choices?.[0]?.message?.content?.trim() || null;
+  }
 
+  const response = await fetch(url, { method: 'POST', headers, signal, body });
   const data = await readJsonSafe(response);
   clear();
 
   if (!response.ok) {
-    const error = new Error(data?.error?.message || data?.message || data?.raw || 'Falha no provider visual');
+    const error = new Error(
+      data?.error?.message || data?.message || data?.raw || `Falha no provider visual (${provider})`
+    );
     error.status = response.status;
     error.provider = providerName;
+    error.vendor = provider;
     error.payload = data;
     throw error;
   }
 
-  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  const content = parseContent(data);
   if (!content) {
-    const error = new Error('Provider visual retornou resposta vazia');
+    const error = new Error(`Provider visual (${provider}) retornou resposta vazia`);
     error.status = 502;
     error.provider = providerName;
+    error.vendor = provider;
     error.payload = data;
     throw error;
   }
 
-  return { answer: content, provider: 'gemini-vision', model: usedModel, raw: data };
+  return { answer: content, provider: `${provider}-vision`, model: usedModel, raw: data };
 }
 
 function fallbackVisionAnswer({ message = '', visionAgent = 'default', imageFile = null, error = null }) {
