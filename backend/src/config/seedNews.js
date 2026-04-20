@@ -56,12 +56,4 @@ export const CURATED_SEED_ITEMS = [
     isOfficial: false,
     pinned: true
   },
-
-  // =========================
-  // 🔒 SEU CONTEÚDO ORIGINAL
-  // =========================
-
-  ...[
-    ...CURATED_SEED_ITEMS_ORIGINAL
-  ]
 ];
