@@ -43,7 +43,7 @@ def main():
     ap.add_argument('--bucket', default=os.getenv('AWS_S3_DEPLOY_BUCKET'))
     ap.add_argument('--region', default=os.getenv('AWS_REGION', 'us-east-1'))
     ap.add_argument('--version-label', default=os.getenv('BACKEND_VERSION_LABEL'))
-    ap.add_argument('--timeout', type=int, default=int(os.getenv('AWS_EB_WAIT_TIMEOUT', '900')))
+    ap.add_argument('--timeout', type=int, default=int(os.getenv('AWS_EB_WAIT_TIMEOUT', '1200')))
     args = ap.parse_args()
 
     required = {
@@ -77,8 +77,10 @@ def main():
         '--version-label', args.version_label,
         '--region', args.region
     ]))
-    env = wait_for_environment(args.environment, args.region, timeout=args.timeout)
+    env = wait_for_environment(args.environment, args.region, timeout=1200)
     print(json.dumps({'status': 'ok', 'environment': env.get('EnvironmentName'), 'version_label': args.version_label}, ensure_ascii=False))
 
 if __name__ == '__main__':
     main()
+
+
