@@ -87,6 +87,20 @@ router.delete('/chat/:id', optionalAuth, (req, res, next) => { try { const token
 router.post('/chat', optionalAuth, async (req, res, next) => { try { const result = await generateAssistantAnswer({ token: resolveToken(req), message: String(req.body.message || '').trim(), sessionId: req.body.sessionId, model: req.body.model, mode: req.body.mode, agent: req.body.agent, provider: req.body.provider, attachments: Array.isArray(req.body.attachments) ? req.body.attachments : [] }); res.json({ ok: true, ...result }); } catch (error) { next(error); } });
 router.post('/chat/vision', optionalAuth, upload.single('image'), async (req, res, next) => {
   try {
+    // [JARVIS PATCH] Gate IMAGE_REQUIRED
+    if (!req.file) {
+      return res.status(400).json({
+        ok: false,
+        error: 'IMAGE_REQUIRED',
+        message: 'Envie uma imagem no campo "image" (multipart/form-data).'
+      });
+    }
+    if (!req.file.mimetype || req.file.mimetype === 'null' || req.file.mimetype === 'undefined') {
+      const ext = String(req.file.originalname || '').split('.').pop().toLowerCase();
+      const mimeMap = { jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', gif:'image/gif', webp:'image/webp' };
+      req.file.mimetype = mimeMap[ext] || 'image/png';
+    }
+
     // Gate 1: imagem obrigatória — 400 se ausente (alinha com vision_contract_gate.py)
     if (!req.file) {
       return res.status(400).json({ ok: false, error: 'Envie um arquivo de imagem no campo "image" (multipart/form-data).' });
