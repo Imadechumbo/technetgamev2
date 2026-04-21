@@ -426,6 +426,7 @@ async function callVisionProvider({ model, systemPrompt, message, imageFile, pro
   clear();
 
   if (!response.ok) {
+    console.error('[vision]', provider, 'status:', response.status, 'data:', JSON.stringify(data));
     const error = new Error(
       data?.error?.message || data?.message || data?.raw || `Falha no provider visual (${provider})`
     );
