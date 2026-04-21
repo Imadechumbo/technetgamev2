@@ -6554,6 +6554,27 @@ a.btn.btn-secondary {
   margin-bottom:10px;
 }
 
+/* Tags no padrão mobile — múltiplas pílulas verdes */
+.featured-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:12px;
+}
+.featured-tag{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 11px;
+  border-radius:999px;
+  background:rgba(45,216,129,.13);
+  border:1px solid rgba(45,216,129,.22);
+  color:#7deebc;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+
 .featured-content h3{
   margin:8px 0 10px;
   font-size:clamp(1.1rem, 1.4vw, 1.35rem);
@@ -6566,6 +6587,18 @@ a.btn.btn-secondary {
   line-height:1.58;
 }
 
+.featured-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:12px;
+  font-size:11px;
+  color:rgba(160,190,180,.7);
+  font-weight:600;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+
 @media (max-width: 1080px){
   .featured-static-grid{
     grid-template-columns:1fr;
@@ -6573,21 +6606,44 @@ a.btn.btn-secondary {
 
   .featured-card > a > img,
   .featured-card img{
-    height:210px !important;
-    min-height:210px !important;
-    max-height:210px !important;
+    height:220px !important;
+    min-height:220px !important;
+    max-height:220px !important;
   }
 }
 
 @media (max-width: 680px){
+  .featured-static-grid{
+    gap:16px;
+  }
+
+  .featured-card{
+    border-radius:16px;
+  }
+
   .featured-card > a > img,
   .featured-card img{
-    height:170px !important;
-    min-height:170px !important;
-    max-height:170px !important;
+    height:200px !important;
+    min-height:200px !important;
+    max-height:200px !important;
   }
 
   .featured-content{
-    padding:14px;
+    padding:14px 14px 16px;
+  }
+
+  .featured-content h3{
+    font-size:1.05rem;
+    margin:6px 0 8px;
+  }
+
+  .featured-content p{
+    font-size:.93rem;
+    line-height:1.52;
+  }
+
+  .featured-tag{
+    font-size:10.5px;
+    padding:4px 10px;
   }
 }
