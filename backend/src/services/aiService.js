@@ -55,6 +55,15 @@ const VISION_API_KEY = process.env.VISION_API_KEY || process.env.OPENAI_VISION_A
 const VISION_MODEL = process.env.VISION_MODEL || 'gpt-4o-mini';
 const MAX_VISION_IMAGE_BYTES = Number(process.env.MAX_VISION_IMAGE_BYTES || 8 * 1024 * 1024);
 
+
+const VISION_FALLBACK_MODELS = [
+  'google/gemma-4-26b-a4b-it:free',
+  'google/gemma-4-31b-it:free',
+  'google/gemma-3-27b-it:free',
+  'google/gemma-3-12b-it:free',
+  'google/gemma-3-4b-it:free',
+];
+
 const SITE_URL = process.env.SITE_URL || 'https://technetgame.com.br';
 const SITE_NAME = process.env.SITE_NAME || 'TechNetGame';
 const MAX_MEMORY_ITEMS = Number(process.env.TECHNET_MEMORY_MAX_ITEMS || 18);
@@ -351,7 +360,13 @@ async function callVisionProvider({ model, systemPrompt, message, imageFile, pro
 
   const { signal, clear } = buildTimeoutSignal();
 
-  const usedModel = model || VISION_MODEL || 'gpt-4o-mini';
+  // Lista de modelos para tentar em ordem (fallback em caso de 429/503)
+  const baseModel = model || VISION_MODEL || 'gpt-4o-mini';
+  const candidateModels = [baseModel, ...VISION_FALLBACK_MODELS.filter(m => m !== baseModel)];
+  
+  let lastError = null;
+  for (const candidateModel of candidateModels) {
+    const usedModel = candidateModel;
   const mime = String(imageFile.mimetype || imageFile.mimeType || imageFile.type || 'image/png').toLowerCase();
   const base64Data = imageFile.buffer.toString('base64');
 
@@ -434,6 +449,13 @@ async function callVisionProvider({ model, systemPrompt, message, imageFile, pro
     error.provider = providerName;
     error.vendor = provider;
     error.payload = data;
+    // Se for rate limit ou unavailable, tenta próximo modelo
+    if (response.status === 429 || response.status === 503) {
+      console.warn('[vision] modelo', usedModel, 'indisponível (', response.status, '), tentando próximo...');
+      lastError = error;
+      clear();
+      continue;
+    }
     throw error;
   }
 
@@ -448,6 +470,9 @@ async function callVisionProvider({ model, systemPrompt, message, imageFile, pro
   }
 
   return { answer: content, provider: `${provider}-vision`, model: usedModel, raw: data };
+  }
+  // Se chegou aqui, todos os modelos falharam
+  throw lastError || new Error('Todos os modelos vision falharam');
 }
 
 function fallbackVisionAnswer({ message = '', visionAgent = 'default', imageFile = null, error = null }) {
