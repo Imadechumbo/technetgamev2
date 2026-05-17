@@ -128,14 +128,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     return firstItemWithImage?.url || firstItem?.url || game.official || '#';
   }
 
-  function mediaImage(game, context) {
-    const forced = getForcedCover(game.title);
-    const curated = CURATED_COVERS[game.title];
-    const firstWithImage = Array.isArray(context?.items)
-      ? context.items.find((item) => item?.image)
-      : null;
+  function isTokonTitle(title = '') {
+    return /(?:tokon|tōkon).*fighting souls/i.test(String(title));
+  }
 
-    return forced || firstWithImage?.image || context?.cover || curated || FALLBACK_COVER;
+  function isTokonCover(value = '') {
+    return /(?:tokon|tōkon|fighting[-_\s]?souls)/i.test(String(value));
+  }
+
+  function editorialCover(game = {}) {
+    const title = game.title || '';
+    const curated = getForcedCover(title) || CURATED_COVERS[title] || FALLBACK_COVER;
+
+    if (!isTokonTitle(title) && isTokonCover(curated)) {
+      return FALLBACK_COVER;
+    }
+
+    return curated;
+  }
+
+  function mediaImage(game) {
+    return editorialCover(game);
   }
 
   function skeletonCard(game) {
@@ -177,17 +190,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await fetch(window.tngApiUrl(`/api/news/game-search?q=${encodeURIComponent(game.title)}&limit=3`));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      const forced = getForcedCover(game.title);
       return {
         ok: Boolean(payload?.ok),
-        cover: forced || payload?.cover || CURATED_COVERS[game.title] || FALLBACK_COVER,
+        cover: editorialCover(game),
         items: Array.isArray(payload?.items) ? payload.items : []
       };
     } catch (error) {
       console.warn('[games-2026] Failed to load context for', game.title, error?.message || error);
       return {
         ok: false,
-        cover: getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER,
+        cover: editorialCover(game),
         items: []
       };
     }
@@ -219,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderMedia(game, context) {
     const link = detailsUrl(game, context);
-    const cover = mediaImage(game, context);
+    const cover = mediaImage(game);
 
     return `
       <a class="game-2026-media-link game-2026-cover-wrap" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir mais detalhes sobre ${escapeHtml(game.title)}">
@@ -238,7 +250,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const release = escapeHtml(game.release || '2026');
     const platforms = escapeHtml(game.platforms || 'Plataformas a confirmar');
     const summary = escapeHtml(game.summary || 'Conteúdo temporariamente indisponível.');
-    const cover = escapeHtml(getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER);
+    const cover = escapeHtml(editorialCover(game));
     const link = escapeHtml(game.official || '#');
 
     return `
