@@ -102,6 +102,116 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
   }
 
+  const COVER_CONFIDENCE_THRESHOLD = 0.75;
+  const CRITICAL_GAME_ALIASES = [
+    { key: 'final fantasy vii remake parte 3', terms: ['final fantasy', 'ff7', 'final fantasy vii', 'final fantasy 7'] },
+    { key: 'assassin s creed codename hexe', terms: ['assassin', 'creed', 'hexe', 'assassins creed'] },
+    { key: 'nioh 3', terms: ['nioh'] },
+    { key: 'ace combat 8 wings of theve', terms: ['ace combat'] },
+    { key: 'marvel tokon fighting souls', terms: ['marvel tokon', 'tokon', 'fighting souls'] },
+    { key: 'tomb raider legacy of atlantis', terms: ['tomb raider', 'lara croft'] },
+    { key: 'marvel 1943 a ascensao da hydra', terms: ['marvel 1943', 'hydra'] },
+    { key: 'marvel s wolverine', terms: ['marvel wolverine', 'wolverine'] }
+  ];
+
+  const TITLE_ALIASES = {
+    'Final Fantasy VII Remake – Parte 3': ['final fantasy', 'ff7', 'final fantasy vii', 'final fantasy 7', 'remake'],
+    'Assassin’s Creed Codename Hexe': ['assassin', 'creed', 'assassins creed', 'hexe'],
+    'Nioh 3': ['nioh'],
+    'Ace Combat 8: Wings of Theve': ['ace combat'],
+    'Marvel Tokon: Fighting Souls': ['marvel', 'tokon', 'fighting souls', 'marvel tokon'],
+    'Tomb Raider Legacy of Atlantis': ['tomb raider', 'lara croft', 'legacy of atlantis'],
+    'Marvel 1943: A Ascensão da Hydra': ['marvel 1943', 'hydra', 'marvel'],
+    'Marvel’s Wolverine': ['marvel wolverine', 'wolverine', 'marvel']
+  };
+
+  function normalizeCoverText(value = '') {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  function getGameAliasKey(title = '') {
+    return normalizeCoverText(title).replace(/\s+/g, ' ');
+  }
+
+  function coverHasTerm(haystack = '', term = '') {
+    const normalized = normalizeCoverText(term);
+    return Boolean(normalized) && (` ${haystack} `.includes(` ${normalized} `) || haystack.includes(normalized.replace(/\s+/g, '')));
+  }
+
+  function getAllowedCoverTerms(title = '') {
+    const normalizedTitle = normalizeCoverText(title);
+    const baseTokens = normalizedTitle.split(' ').filter((token) => token.length >= 3 && !['the', 'and', 'com', 'para', 'parte', 'codename'].includes(token));
+    return [...new Set([normalizedTitle, ...(TITLE_ALIASES[title] || []), ...baseTokens].map(normalizeCoverText).filter(Boolean))];
+  }
+
+  function hasCriticalCoverConflict(game, candidate = {}) {
+    const gameKey = getGameAliasKey(game.title);
+    const haystack = normalizeCoverText([
+      candidate.image,
+      candidate.source,
+      candidate.title,
+      candidate.provider,
+      candidate.description,
+      candidate.badge,
+      ...(Array.isArray(candidate.matched_terms) ? candidate.matched_terms : [])
+    ].join(' '));
+
+    if (coverHasTerm(haystack, 'marvel') && !coverHasTerm(gameKey, 'marvel') && !coverHasTerm(gameKey, 'tokon')) {
+      return true;
+    }
+
+    return CRITICAL_GAME_ALIASES.some((entry) => {
+      if (entry.key === gameKey) return false;
+      return entry.terms.some((term) => coverHasTerm(haystack, term));
+    });
+  }
+
+  function isSafeExternalCover(game, candidate = {}) {
+    const image = String(candidate.image || '').trim();
+    if (!/^https?:\/\//i.test(image)) return false;
+    if (hasCriticalCoverConflict(game, candidate)) return false;
+
+    const confidence = Number(candidate.confidence || 0);
+    const matchedTerms = Array.isArray(candidate.matched_terms) ? candidate.matched_terms.map(normalizeCoverText) : [];
+    const allowedTerms = getAllowedCoverTerms(game.title);
+    const haystack = normalizeCoverText([candidate.title, candidate.source, candidate.provider, candidate.image].join(' '));
+    const hasAllowedMatch = allowedTerms.some((term) => matchedTerms.includes(term) || coverHasTerm(haystack, term));
+
+    return confidence >= COVER_CONFIDENCE_THRESHOLD && hasAllowedMatch;
+  }
+
+  function getSafeExternalCover(game, coverPayload = {}) {
+    const directCandidate = coverPayload?.selected || {
+      image: coverPayload?.cover,
+      source: coverPayload?.source,
+      title: coverPayload?.title || coverPayload?.query,
+      provider: coverPayload?.provider,
+      confidence: coverPayload?.confidence,
+      matched_terms: coverPayload?.matched_terms,
+      badge: coverPayload?.badge
+    };
+
+    if (coverPayload?.ok && isSafeExternalCover(game, directCandidate)) {
+      return directCandidate.image;
+    }
+
+    const candidates = Array.isArray(coverPayload?.candidates) ? coverPayload.candidates : [];
+    const accepted = candidates.find((candidate) => candidate?.accepted !== false && isSafeExternalCover(game, candidate));
+    return accepted?.image || null;
+  }
+
+  function resolveGameCover(game, context = {}) {
+    const coverOverride = getForcedCover(game.title);
+    const safeExternalCover = getSafeExternalCover(game, context.coverPayload);
+    return coverOverride || safeExternalCover || CURATED_COVERS[game.title] || FALLBACK_COVER;
+  }
+
   function escapeHtml(value = '') {
     return String(value)
       .replaceAll('&', '&amp;')
@@ -129,13 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function mediaImage(game, context) {
-    const forced = getForcedCover(game.title);
-    const curated = CURATED_COVERS[game.title];
-    const firstWithImage = Array.isArray(context?.items)
-      ? context.items.find((item) => item?.image)
-      : null;
-
-    return forced || firstWithImage?.image || context?.cover || curated || FALLBACK_COVER;
+    return resolveGameCover(game, context);
   }
 
   function skeletonCard(game) {
@@ -172,25 +276,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
   }
 
-  async function getGameContext(game) {
+  async function fetchJsonOrNull(url) {
     try {
-      const response = await fetch(window.tngApiUrl(`/api/news/game-search?q=${encodeURIComponent(game.title)}&limit=3`));
+      const response = await fetch(window.tngApiUrl(url));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
-      const forced = getForcedCover(game.title);
-      return {
-        ok: Boolean(payload?.ok),
-        cover: forced || payload?.cover || CURATED_COVERS[game.title] || FALLBACK_COVER,
-        items: Array.isArray(payload?.items) ? payload.items : []
-      };
+      return await response.json();
     } catch (error) {
-      console.warn('[games-2026] Failed to load context for', game.title, error?.message || error);
-      return {
-        ok: false,
-        cover: getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER,
-        items: []
-      };
+      console.warn('[games-2026] Request failed for', url, error?.message || error);
+      return null;
     }
+  }
+
+  async function getGameContext(game) {
+    const [newsPayload, coverPayload] = await Promise.all([
+      fetchJsonOrNull(`/api/news/game-search?q=${encodeURIComponent(game.title)}&limit=3`),
+      fetchJsonOrNull(`/api/games/cover?q=${encodeURIComponent(game.title)}`)
+    ]);
+
+    return {
+      ok: Boolean(newsPayload?.ok || coverPayload?.ok),
+      safeExternalCover: getSafeExternalCover(game, coverPayload),
+      coverPayload,
+      items: Array.isArray(newsPayload?.items) ? newsPayload.items : []
+    };
   }
 
   function getRenderableNewsItems(items = []) {
@@ -238,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const release = escapeHtml(game.release || '2026');
     const platforms = escapeHtml(game.platforms || 'Plataformas a confirmar');
     const summary = escapeHtml(game.summary || 'Conteúdo temporariamente indisponível.');
-    const cover = escapeHtml(getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER);
+    const cover = escapeHtml(resolveGameCover(game, {}));
     const link = escapeHtml(game.official || '#');
 
     return `
