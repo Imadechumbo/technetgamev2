@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   rankGameCoverCandidates,
   scoreGameCoverCandidate
@@ -18,6 +19,46 @@ function assertNoAcceptedTitleMismatch(query, candidates) {
 
   return ranked;
 }
+
+
+const frontendSource = readFileSync(new URL('../front/assets/js/games-2026-feature.js', import.meta.url), 'utf8');
+
+assert.match(frontendSource, /\/api\/games\/cover/, 'games-2026-feature.js deve chamar /api/games/cover');
+assert.match(frontendSource, /selected\.titleMatch\s*===\s*true/, 'frontend deve aceitar apenas capas com selected.titleMatch=true');
+assert.doesNotMatch(
+  frontendSource,
+  /return\s+[^;]*firstWithImage\?\.image[^;]*(?:CURATED_COVERS|curated|apiCover|resolveApiCover)/s,
+  'mediaImage/render principal não pode priorizar firstWithImage?.image antes de API/CURATED_COVERS'
+);
+assert.doesNotMatch(
+  frontendSource,
+  /function\s+mediaImage[\s\S]*?firstWithImage\?\.image[\s\S]*?}/,
+  'mediaImage não deve usar context.items[].image como capa principal'
+);
+assert.match(
+  frontendSource,
+  /return\s+CURATED_COVERS\[game\.title\]\s*\|\|\s*FALLBACK_COVER/,
+  'fallback de capa principal deve usar CURATED_COVERS antes de FALLBACK_COVER'
+);
+
+function assertCuratedCoverValue(title, expected) {
+  const declaration = `'${title}': '${expected}'`;
+  assert.ok(frontendSource.includes(declaration), `${title}: capa curated deve existir no frontend`);
+  return expected;
+}
+
+const finalFantasyCuratedCover = assertCuratedCoverValue(
+  'Final Fantasy VII Remake – Parte 3',
+  'assets/img/game-cover-final-fantasy-vii-remake-parte-3.svg'
+);
+const niohCuratedCover = assertCuratedCoverValue('Nioh 3', 'assets/img/game-cover-nioh-3.svg');
+const marvelTokonCuratedCover = assertCuratedCoverValue(
+  'Marvel Tokon: Fighting Souls',
+  'assets/img/game-cover-marvel-tokon-fighting-souls.svg'
+);
+assert.notEqual(finalFantasyCuratedCover, niohCuratedCover, 'Final Fantasy e Nioh não podem compartilhar capa contaminada');
+assert.notEqual(finalFantasyCuratedCover, marvelTokonCuratedCover, 'Final Fantasy e Marvel Tokon não podem compartilhar capa contaminada');
+assert.notEqual(niohCuratedCover, marvelTokonCuratedCover, 'Nioh e Marvel Tokon não podem compartilhar capa contaminada');
 
 const rawgMismatch = scoreGameCoverCandidate('Nioh 3', {
   source: 'rawg',

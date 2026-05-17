@@ -128,14 +128,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     return firstItemWithImage?.url || firstItem?.url || game.official || '#';
   }
 
-  function mediaImage(game, context) {
-    const forced = getForcedCover(game.title);
-    const curated = CURATED_COVERS[game.title];
-    const firstWithImage = Array.isArray(context?.items)
-      ? context.items.find((item) => item?.image)
-      : null;
+  function apiUrl(path = '') {
+    if (typeof window.tngApiUrl === 'function') {
+      return window.tngApiUrl(path);
+    }
 
-    return forced || firstWithImage?.image || context?.cover || curated || FALLBACK_COVER;
+    const base = String(
+      window.RUNTIME_CONFIG?.API_BASE_URL ||
+      window.RUNTIME_CONFIG?.API_URL ||
+      window.RUNTIME_CONFIG?.API_BASE ||
+      'https://api.technetgame.com.br'
+    ).replace(/\/$/, '');
+    const normalizedPath = String(path || '').startsWith('/') ? String(path || '') : `/${path || ''}`;
+    return `${base}${normalizedPath}`;
+  }
+
+  function isValidApiCoverPayload(data) {
+    return (
+      data?.ok === true &&
+      Boolean(data?.selected) &&
+      data.selected.titleMatch === true &&
+      Boolean(data?.image || data?.cover)
+    );
+  }
+
+  async function resolveApiCover(game) {
+    try {
+      const response = await fetch(apiUrl(`/api/games/cover?q=${encodeURIComponent(game.title)}`));
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+
+      if (!isValidApiCoverPayload(data)) {
+        return null;
+      }
+
+      return data.image || data.cover;
+    } catch (error) {
+      console.warn('[games-2026] Failed to load API cover for', game.title, error?.message || error);
+      return null;
+    }
+  }
+
+  async function mediaImage(game) {
+    const forced = getForcedCover(game.title);
+    if (forced) return forced;
+
+    const apiCover = await resolveApiCover(game);
+    if (apiCover) return apiCover;
+
+    return CURATED_COVERS[game.title] || FALLBACK_COVER;
   }
 
   function skeletonCard(game) {
@@ -174,20 +215,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function getGameContext(game) {
     try {
-      const response = await fetch(window.tngApiUrl(`/api/news/game-search?q=${encodeURIComponent(game.title)}&limit=3`));
+      const response = await fetch(apiUrl(`/api/news/game-search?q=${encodeURIComponent(game.title)}&limit=3`));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
-      const forced = getForcedCover(game.title);
       return {
         ok: Boolean(payload?.ok),
-        cover: forced || payload?.cover || CURATED_COVERS[game.title] || FALLBACK_COVER,
         items: Array.isArray(payload?.items) ? payload.items : []
       };
     } catch (error) {
       console.warn('[games-2026] Failed to load context for', game.title, error?.message || error);
       return {
         ok: false,
-        cover: getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER,
         items: []
       };
     }
@@ -217,9 +255,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     `).join('');
   }
 
-  function renderMedia(game, context) {
+  async function renderMedia(game, context) {
     const link = detailsUrl(game, context);
-    const cover = mediaImage(game, context);
+    const cover = await mediaImage(game);
 
     return `
       <a class="game-2026-media-link game-2026-cover-wrap" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir mais detalhes sobre ${escapeHtml(game.title)}">
@@ -280,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return `
         <article class="game-2026-portal-card" id="game-${game.rank}">
           <div class="game-2026-portal-main">
-            ${renderMedia(game, context)}
+            ${await renderMedia(game, context)}
 
             <div class="game-2026-portal-copy">
               <div class="game-2026-heading-row">
