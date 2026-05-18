@@ -49,38 +49,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   ];
 
-  const FALLBACK_COVER = 'assets/img/fallback-game-cover.svg';
-  const CURATED_COVERS = {
-    'Grand Theft Auto VI': 'assets/img/game-gta6-real.jpg',
-    'Resident Evil Requiem': 'assets/img/game-requiem-real.png',
-    'Final Fantasy VII Remake – Parte 3': 'assets/img/game-cover-final-fantasy-vii-remake-parte-3.svg',
-    'Assassin’s Creed Codename Hexe': 'assets/img/game-cover-assassin-s-creed-codename-hexe.svg',
-    'Nioh 3': 'assets/img/game-cover-nioh-3.svg',
-    'Ace Combat 8: Wings of Theve': 'assets/img/game-cover-ace-combat-8-wings-of-theve.svg',
-    'Control: Resonant': 'assets/img/game-control.png',
-    'Dragon Quest VII: Reimagined': 'assets/img/game-cover-dragon-quest-vii-reimagined.svg',
-    'Pragmata': 'assets/img/game-pragmata-real.png',
-    'Marvel’s Wolverine': 'assets/img/game-wolverine.png',
-    'Marvel Tokon: Fighting Souls': 'assets/img/game-cover-marvel-tokon-fighting-souls.svg',
-    'Phantom Blade Zero': 'assets/img/game-cover-phantom-blade-zero.svg',
-    'Saros': 'assets/img/game-saros.png',
-    '007: First Light': 'assets/img/game-cover-007-first-light.svg',
-    'Diablo IV: Senhor do Ódio': 'assets/img/game-cover-diablo-iv-senhor-do-odio.svg',
-    'Duskbloods': 'assets/img/game-duskbloods.png',
-    'Pokémon Pokopia': 'assets/img/game-pokopia.jpg',
-    'Assetto Corsa EVO': 'assets/img/game-cover-assetto-corsa-evo.svg',
-    'Forza Horizon 6': 'assets/img/game-cover-forza-horizon-6.svg',
-    'Halo: Campanha Evoluída': 'assets/img/game-cover-halo-campanha-evolu-da.svg',
-    'Tomb Raider Legacy of Atlantis': 'assets/img/game-cover-tomb-raider-legacy-of-atlantis.svg',
-    'Marvel 1943: A Ascensão da Hydra': 'assets/img/game-cover-marvel-1943-a-ascens-o-da-hydra.svg',
-    'High On Life 2': 'assets/img/game-cover-high-on-life-2.svg',
-    'John Carpenter’s Toxic Commando': 'assets/img/game-cover-john-carpenter-s-toxic-commando.svg',
-    'Ontos': 'assets/img/game-cover-ontos.svg',
-    'Highguard': 'assets/img/game-cover-highguard.svg',
-    'Clair Obscur: Expedition 33': 'assets/img/game-clair-real.png'
-  };
-
-
   const FORCE_COVERS = {
     'Control: Resonant': 'assets/img/game-control.png',
     'Marvel’s Wolverine': 'assets/img/game-wolverine.png',
@@ -91,15 +59,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Pokemon Pokopia': 'assets/img/game-pokopia.jpg'
   };
 
+  const TRUSTED_API_COVER_SOURCES = new Set(['rawg', 'steamgriddb', 'igdb']);
+
+  function isRemoteHttpUrl(value = '') {
+    try {
+      const url = new URL(String(value));
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
+  function apiCoverImage(data) {
+    return data?.selected?.image || data?.image || data?.cover || '';
+  }
+
+  function apiCoverSource(data) {
+    return data?.selected?.source || data?.source || '';
+  }
+
   function getForcedCover(title = '') {
     if (!title) return null;
 
-    return (
+    const forced =
       FORCE_COVERS[title] ||
       FORCE_COVERS[title.replace(/’/g, "'")] ||
       FORCE_COVERS[title.replace(/'/g, '’')] ||
-      null
-    );
+      null;
+
+    return isRemoteHttpUrl(forced) ? forced : null;
   }
 
   function escapeHtml(value = '') {
@@ -144,11 +132,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function isValidApiCoverPayload(data) {
+    const image = apiCoverImage(data);
+    const source = apiCoverSource(data);
+
     return (
       data?.ok === true &&
       Boolean(data?.selected) &&
       data.selected.titleMatch === true &&
-      Boolean(data?.image || data?.cover)
+      Boolean(image) &&
+      TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase()) &&
+      isRemoteHttpUrl(image)
     );
   }
 
@@ -156,13 +149,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const response = await fetch(apiUrl(`/api/games/cover?q=${encodeURIComponent(game.title)}`));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
       const data = await response.json();
 
       if (!isValidApiCoverPayload(data)) {
         return null;
       }
 
-      return data.image || data.cover;
+      return {
+        image: apiCoverImage(data),
+        source: String(apiCoverSource(data)).toLowerCase()
+      };
     } catch (error) {
       console.warn('[games-2026] Failed to load API cover for', game.title, error?.message || error);
       return null;
@@ -171,12 +168,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function mediaImage(game) {
     const forced = getForcedCover(game.title);
-    if (forced) return forced;
 
-    const apiCover = await resolveApiCover(game);
-    if (apiCover) return apiCover;
+    if (forced) {
+      return { image: forced, source: 'forced' };
+    }
 
-    return CURATED_COVERS[game.title] || FALLBACK_COVER;
+    return resolveApiCover(game);
   }
 
   function skeletonCard(game) {
@@ -259,9 +256,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const link = detailsUrl(game, context);
     const cover = await mediaImage(game);
 
+    if (!cover?.image) {
+      return `
+        <div class="game-2026-media-link game-2026-cover-wrap cover-missing" aria-label="Capa oficial indisponível para ${escapeHtml(game.title)}">
+          <div class="game-2026-cover-missing">
+            <span>Aguardando capa oficial</span>
+          </div>
+          <div class="game-2026-cover-overlay">
+            <span class="game-2026-rank">#${game.rank}</span>
+            <span class="game-2026-tag">Especial 2026</span>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <a class="game-2026-media-link game-2026-cover-wrap" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir mais detalhes sobre ${escapeHtml(game.title)}">
-        <img class="game-2026-cover" src="${escapeHtml(cover)}" alt="${escapeHtml(game.title)}" loading="lazy" decoding="async" width="1280" height="720">
+        <img class="game-2026-cover" src="${escapeHtml(cover.image)}" alt="${escapeHtml(game.title)}" loading="lazy" decoding="async" width="1280" height="720">
         <div class="game-2026-cover-overlay">
           <span class="game-2026-rank">#${game.rank}</span>
           <span class="game-2026-tag">Especial 2026</span>
@@ -276,20 +287,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const release = escapeHtml(game.release || '2026');
     const platforms = escapeHtml(game.platforms || 'Plataformas a confirmar');
     const summary = escapeHtml(game.summary || 'Conteúdo temporariamente indisponível.');
-    const cover = escapeHtml(getForcedCover(game.title) || CURATED_COVERS[game.title] || FALLBACK_COVER);
     const link = escapeHtml(game.official || '#');
 
     return `
       <article class="game-2026-portal-card" id="game-${escapeHtml(game.rank || '0')}">
         <div class="game-2026-portal-main">
-          <a class="game-2026-media-link game-2026-cover-wrap" href="${link}" target="_blank" rel="noopener noreferrer">
-            <img class="game-2026-cover" src="${cover}" alt="${title}" loading="lazy" decoding="async" width="1280" height="720">
+          <div class="game-2026-media-link game-2026-cover-wrap cover-missing">
+            <div class="game-2026-cover-missing">
+              <span>Aguardando capa oficial</span>
+            </div>
             <div class="game-2026-cover-overlay">
               <span class="game-2026-rank">#${escapeHtml(game.rank || '0')}</span>
               <span class="game-2026-tag">Especial 2026</span>
             </div>
-            <span class="game-2026-media-badge">Página oficial ↗</span>
-          </a>
+          </div>
           <div class="game-2026-portal-copy">
             <div class="game-2026-heading-row">
               <div>

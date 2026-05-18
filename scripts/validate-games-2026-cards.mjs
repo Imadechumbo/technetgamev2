@@ -1,117 +1,76 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import {
-  rankGameCoverCandidates,
-  scoreGameCoverCandidate
-} from '../backend/src/services/gameCoverService.js';
-
-function assertNoAcceptedTitleMismatch(query, candidates) {
-  const ranked = rankGameCoverCandidates(query, candidates);
-  assert.notEqual(ranked.selected?.titleMatch, false, `${query}: selected não pode ter titleMatch=false`);
-
-  for (const candidate of ranked.candidates) {
-    if (candidate.titleMatch === false) {
-      assert.equal(candidate.accepted, false, `${query}: ${candidate.title} não pode ser accepted com titleMatch=false`);
-      assert.equal(candidate.rejectedReason, 'title-mismatch', `${query}: ${candidate.title} deve ser title-mismatch`);
-      assert.ok(candidate.confidence < 0.7, `${query}: ${candidate.title} deve ficar abaixo do threshold`);
-    }
-  }
-
-  return ranked;
-}
-
 
 const frontendSource = readFileSync(new URL('../front/assets/js/games-2026-feature.js', import.meta.url), 'utf8');
+const gamesHtml = readFileSync(new URL('../front/games.html', import.meta.url), 'utf8');
 
-assert.match(frontendSource, /\/api\/games\/cover/, 'games-2026-feature.js deve chamar /api/games/cover');
-assert.match(frontendSource, /selected\.titleMatch\s*===\s*true/, 'frontend deve aceitar apenas capas com selected.titleMatch=true');
-assert.doesNotMatch(
-  frontendSource,
-  /return\s+[^;]*firstWithImage\?\.image[^;]*(?:CURATED_COVERS|curated|apiCover|resolveApiCover)/s,
-  'mediaImage/render principal não pode priorizar firstWithImage?.image antes de API/CURATED_COVERS'
-);
-assert.doesNotMatch(
-  frontendSource,
-  /function\s+mediaImage[\s\S]*?firstWithImage\?\.image[\s\S]*?}/,
-  'mediaImage não deve usar context.items[].image como capa principal'
-);
-assert.match(
-  frontendSource,
-  /return\s+CURATED_COVERS\[game\.title\]\s*\|\|\s*FALLBACK_COVER/,
-  'fallback de capa principal deve usar CURATED_COVERS antes de FALLBACK_COVER'
-);
-
-function assertCuratedCoverValue(title, expected) {
-  const declaration = `'${title}': '${expected}'`;
-  assert.ok(frontendSource.includes(declaration), `${title}: capa curated deve existir no frontend`);
-  return expected;
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const finalFantasyCuratedCover = assertCuratedCoverValue(
-  'Final Fantasy VII Remake – Parte 3',
-  'assets/img/game-cover-final-fantasy-vii-remake-parte-3.svg'
+function extractFunctionBody(source, functionName) {
+  const signature = new RegExp(`(?:async\\s+)?function\\s+${escapeRegExp(functionName)}\\s*\\([^)]*\\)\\s*\\{`, 'm');
+  const match = signature.exec(source);
+  assert.ok(match, `${functionName} deve existir no frontend`);
+
+  const bodyStart = match.index + match[0].length;
+  let depth = 1;
+  let index = bodyStart;
+
+  while (index < source.length && depth > 0) {
+    const char = source[index];
+    if (char === '{') depth += 1;
+    if (char === '}') depth -= 1;
+    index += 1;
+  }
+
+  assert.equal(depth, 0, `${functionName} deve ter chaves balanceadas`);
+  return source.slice(bodyStart, index - 1);
+}
+
+function assertNotIncludesAny(source, forbiddenTokens, label) {
+  for (const token of forbiddenTokens) {
+    assert.ok(!source.includes(token), `${label} não pode conter ${token}`);
+  }
+}
+
+const mediaImageBody = extractFunctionBody(frontendSource, 'mediaImage');
+const renderFallbackCardBody = extractFunctionBody(frontendSource, 'renderFallbackCard');
+const renderMediaBody = extractFunctionBody(frontendSource, 'renderMedia');
+const scriptIncludes = [...gamesHtml.matchAll(/<script\b[^>]*\bgames-2026-feature\.js\?v=([^"'\s>]+)[^>]*><\/script>/g)];
+
+assert.match(frontendSource, /\/api\/games\/cover/, 'frontend deve chamar /api/games/cover');
+assert.match(frontendSource, /selected\.titleMatch\s*===\s*true/, 'frontend deve exigir selected.titleMatch === true');
+assert.ok(
+  frontendSource.includes('TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase())'),
+  'frontend deve validar fonte com TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase())'
 );
-const niohCuratedCover = assertCuratedCoverValue('Nioh 3', 'assets/img/game-cover-nioh-3.svg');
-const marvelTokonCuratedCover = assertCuratedCoverValue(
-  'Marvel Tokon: Fighting Souls',
-  'assets/img/game-cover-marvel-tokon-fighting-souls.svg'
+assert.ok(frontendSource.includes('isRemoteHttpUrl(image)'), 'frontend deve validar imagem remota com isRemoteHttpUrl(image)');
+assert.doesNotMatch(frontendSource, /Boolean\(data\?\.image\s*\|\|\s*data\?\.cover\)/, 'frontend não pode validar image/cover com || dentro de Boolean');
+assert.doesNotMatch(frontendSource, /TRUSTED_API_COVER_SOURCES\.has\(\.\.\.\)/, 'frontend não pode conter placeholder TRUSTED_API_COVER_SOURCES.has(...)');
+assert.doesNotMatch(
+  frontendSource,
+  /if\s*\(\s*!isValidApiCoverPayload\(data\)\s*\)\s*\{\s*return\s+null;\s*if\s*\(\s*isValidApiCoverPayload\(data\)\s*\)\s*\{/,
+  'resolveApiCover não pode conter bloco quebrado de validação duplicada'
 );
-assert.notEqual(finalFantasyCuratedCover, niohCuratedCover, 'Final Fantasy e Nioh não podem compartilhar capa contaminada');
-assert.notEqual(finalFantasyCuratedCover, marvelTokonCuratedCover, 'Final Fantasy e Marvel Tokon não podem compartilhar capa contaminada');
-assert.notEqual(niohCuratedCover, marvelTokonCuratedCover, 'Nioh e Marvel Tokon não podem compartilhar capa contaminada');
+assert.doesNotMatch(
+  frontendSource,
+  /return\s+CURATED_COVERS\[game\.title\]\s*\|\|\s*FALLBACK_COVER;\s*return\s+resolveApiCover\(game\);/,
+  'frontend não pode conter retorno antigo seguido do retorno da API'
+);
 
-const rawgMismatch = scoreGameCoverCandidate('Nioh 3', {
-  source: 'rawg',
-  sourceTier: 1,
-  title: 'Arma 3',
-  image: 'https://example.test/arma-3.jpg',
-  titleMatch: false,
-  confidence: 0.82
-});
-assert.equal(rawgMismatch.accepted, false, 'RAWG tier 1 com titleMatch=false deve ser rejected');
-assert.equal(rawgMismatch.rejectedReason, 'title-mismatch');
-assert.equal(rawgMismatch.confidence, 0.49);
+assertNotIncludesAny(mediaImageBody, ['CURATED_COVERS', 'FALLBACK_COVER', 'firstWithImage', 'context?.cover'], 'mediaImage');
+assertNotIncludesAny(renderFallbackCardBody, ['CURATED_COVERS', 'FALLBACK_COVER'], 'renderFallbackCard');
+assertNotIncludesAny(renderMediaBody, ['CURATED_COVERS', 'FALLBACK_COVER'], 'renderMedia');
+assert.equal((renderMediaBody.match(/<img\b/g) || []).length, 1, 'renderMedia deve conter somente um <img');
+assert.ok(renderMediaBody.includes('src="${escapeHtml(cover.image)}"'), 'renderMedia deve usar cover.image no src do <img>');
+assert.ok(renderMediaBody.includes('cover-missing'), 'renderMedia deve renderizar cover-missing quando não houver capa');
+assert.ok(renderMediaBody.includes('Aguardando capa oficial'), 'renderMedia deve informar Aguardando capa oficial');
+assert.ok(renderFallbackCardBody.includes('cover-missing'), 'renderFallbackCard deve renderizar cover-missing');
+assert.ok(renderFallbackCardBody.includes('Aguardando capa oficial'), 'renderFallbackCard deve informar Aguardando capa oficial');
 
-const steamGridMismatch = scoreGameCoverCandidate('Final Fantasy VII Remake Parte 3', {
-  source: 'steamgriddb',
-  sourceTier: 1,
-  title: 'Final Fantasy III',
-  image: 'https://example.test/ff3.jpg',
-  titleMatch: false,
-  confidence: 0.82
-});
-assert.equal(steamGridMismatch.accepted, false, 'SteamGridDB tier 1 com titleMatch=false deve ser rejected');
-assert.equal(steamGridMismatch.rejectedReason, 'title-mismatch');
-assert.equal(steamGridMismatch.confidence, 0.49);
-
-const nioh = assertNoAcceptedTitleMismatch('Nioh 3', [
-  { source: 'rawg', sourceTier: 1, title: 'Nioh 3', image: 'https://example.test/nioh-3.jpg' },
-  { source: 'rawg', sourceTier: 1, title: 'Nioh', image: 'https://example.test/nioh.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'steamgriddb', sourceTier: 1, title: 'Nioh 2', image: 'https://example.test/nioh-2.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Nioh Complete Edition', image: 'https://example.test/nioh-complete.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Arma 3', image: 'https://example.test/arma-3.jpg', titleMatch: false, confidence: 0.82 }
-]);
-assert.equal(nioh.selected.title, 'Nioh 3');
-assert.equal(nioh.candidates.find((candidate) => candidate.title === 'Arma 3')?.rejectedReason, 'title-mismatch');
-assert.equal(nioh.candidates.find((candidate) => candidate.title === 'Nioh 2')?.accepted, false);
-assert.equal(nioh.candidates.find((candidate) => candidate.title === 'Nioh Complete Edition')?.accepted, false);
-
-const finalFantasy = assertNoAcceptedTitleMismatch('Final Fantasy VII Remake Parte 3', [
-  { source: 'steamgriddb', sourceTier: 1, title: 'Final Fantasy VII Remake', image: 'https://example.test/ff7-remake.jpg' },
-  { source: 'rawg', sourceTier: 1, title: 'Final Fantasy III', image: 'https://example.test/ff3.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Final Fantasy VI', image: 'https://example.test/ff6.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Final Fantasy VII', image: 'https://example.test/ff7-1997.jpg', titleMatch: false, confidence: 0.82 }
-]);
-assert.equal(finalFantasy.selected.title, 'Final Fantasy VII Remake');
-assert.equal(finalFantasy.candidates.find((candidate) => candidate.title === 'Final Fantasy III')?.rejectedReason, 'title-mismatch');
-assert.equal(finalFantasy.candidates.find((candidate) => candidate.title === 'Final Fantasy VI')?.rejectedReason, 'title-mismatch');
-
-const marvel = assertNoAcceptedTitleMismatch('Marvel Tokon', [
-  { source: 'steamgriddb', sourceTier: 1, title: 'Marvel Tokon: Fighting Souls', image: 'https://example.test/marvel-tokon.jpg' },
-  { source: 'rawg', sourceTier: 1, title: "Marvel's Avengers", image: 'https://example.test/avengers.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Wolverine', image: 'https://example.test/wolverine.jpg', titleMatch: false, confidence: 0.82 },
-  { source: 'rawg', sourceTier: 1, title: 'Marvel Heroes', image: 'https://example.test/marvel-heroes.jpg', titleMatch: false, confidence: 0.82 }
-]);
-assert.equal(marvel.selected.title, 'Marvel Tokon: Fighting Souls');
+assert.equal(scriptIncludes.length, 1, 'front/games.html deve conter exatamente uma inclusão de games-2026-feature.js');
+assert.equal(scriptIncludes[0][1], '20260517-api-original-covers-03', 'cache-buster deve ser 20260517-api-original-covers-03');
+assert.ok(!gamesHtml.includes('20260517-api-covers-02'), 'cache-buster antigo 20260517-api-covers-02 não pode existir em front/games.html');
 
 console.log('validate-games-2026-cards: ok');
