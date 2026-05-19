@@ -27,6 +27,19 @@ const SOURCE_TIERS = new Map([
   ['social', 5]
 ]);
 
+const OFFICIAL_TITLE_ALIASES = {
+  'diablo 4 senhor do odio': [
+    'diablo iv',
+    'diablo 4',
+    'diablo iv vessel of hatred',
+    'diablo 4 vessel of hatred'
+  ],
+  duskbloods: ['the duskbloods', 'duskbloods fromsoftware'],
+  'marvel s wolverine': ["marvel's wolverine", 'marvel wolverine', 'wolverine insomniac'],
+  'halo campanha evoluida': ['halo campaign evolved', 'halo'],
+  'marvel 1943 a ascensao da hydra': ['marvel 1943 rise of hydra', 'marvel 1943']
+};
+
 const CONTROLLED_ALIASES = [
   {
     includes: ['final fantasy vii remake parte 3', 'final fantasy 7 remake parte 3'],
@@ -118,6 +131,23 @@ function isControlledAliasMatch(query = '', candidateTitle = '') {
   });
 }
 
+function aliasesForQuery(query = '') {
+  const normalized = normalizeTitle(query);
+  if (!normalized) return [];
+  const aliases = OFFICIAL_TITLE_ALIASES[normalized] || [];
+  return [...new Set(aliases.map((alias) => normalizeTitle(alias)).filter(Boolean))];
+}
+
+function isOfficialAliasMatch(query = '', candidateTitle = '') {
+  const candidate = normalizeTitle(candidateTitle);
+  if (!candidate) return false;
+  return aliasesForQuery(query).includes(candidate);
+}
+
+function isRemoteCoverUrl(url = '') {
+  return /^https?:\/\//i.test(String(url || '').trim());
+}
+
 function isTitleMatch(query = '', candidateTitle = '') {
   const q = normalizeTitle(query);
   const c = normalizeTitle(candidateTitle);
@@ -172,6 +202,7 @@ export function scoreGameCoverCandidate(query = '', candidate = {}, options = {}
   const title = candidate.title || candidate.name || '';
   const sourceTier = Number(candidate.sourceTier || sourceTierFor(candidate.source));
   const controlledAliasMatch = isControlledAliasMatch(query, title);
+  const aliasMatch = Boolean(candidate.aliasMatch ?? isOfficialAliasMatch(query, title));
   const titleMatch = Boolean(candidate.titleMatch ?? isTitleMatch(query, title));
   const criticalConflict = Boolean(
     candidate.criticalConflict ?? (controlledAliasMatch ? false : hasCriticalConflict(query, title))
@@ -179,22 +210,26 @@ export function scoreGameCoverCandidate(query = '', candidate = {}, options = {}
   const blockedSource = Boolean(candidate.blockedSource ?? hasBlockedSource(candidate));
   const candidateConfidence = Number(candidate.confidence);
   let confidence = Number.isFinite(candidateConfidence) ? candidateConfidence : baseConfidence(query, candidate);
+  if (aliasMatch && !titleMatch) {
+    confidence = Math.max(confidence, 0.9);
+  }
 
-  if (!titleMatch) {
+  if (!titleMatch && !aliasMatch) {
     confidence = Math.min(confidence, TITLE_MISMATCH_CONFIDENCE_CAP);
   }
 
   confidence = Math.max(0, Math.min(1, Number(confidence.toFixed(2))));
-  const accepted = sourceTier <= 2 && confidence >= threshold && titleMatch && !criticalConflict && !blockedSource;
+  const accepted = sourceTier <= 2 && confidence >= threshold && (titleMatch || aliasMatch) && !criticalConflict && !blockedSource;
   const rejectedReason = accepted
     ? null
-    : rejectionReason({ titleMatch, sourceTier, confidence, threshold, criticalConflict, blockedSource });
+    : rejectionReason({ titleMatch: titleMatch || aliasMatch, sourceTier, confidence, threshold, criticalConflict, blockedSource });
 
   return {
     ...candidate,
     title,
     sourceTier,
     titleMatch,
+    aliasMatch,
     criticalConflict,
     confidence,
     accepted,
@@ -208,11 +243,12 @@ export function rankGameCoverCandidates(query = '', candidates = [], options = {
     .sort((a, b) => {
       if (a.accepted !== b.accepted) return a.accepted ? -1 : 1;
       if (a.titleMatch !== b.titleMatch) return a.titleMatch ? -1 : 1;
+      if (a.aliasMatch !== b.aliasMatch) return a.aliasMatch ? -1 : 1;
       if (a.sourceTier !== b.sourceTier) return a.sourceTier - b.sourceTier;
       return b.confidence - a.confidence;
     });
 
-  const selected = scored.find((candidate) => candidate.accepted && candidate.titleMatch) || null;
+  const selected = scored.find((candidate) => candidate.accepted && (candidate.titleMatch || candidate.aliasMatch)) || null;
   return { selected, candidates: scored };
 }
 
@@ -310,21 +346,33 @@ async function fetchSteamGridDbCandidates(query = '') {
 
 export async function resolveGameCover(query = '') {
   const q = String(query || '').trim();
-  if (!q) return { ok: false, query: '', selected: null, candidates: [], error: 'query-required' };
+  if (!q) return { ok: false, query: '', normalizedQuery: '', aliasesTried: [], selected: null, image: '', candidates: [], error: 'query-required' };
+  const normalizedQuery = normalizeTitle(q);
+  const aliasesTried = aliasesForQuery(q);
+  const searchQueries = [...new Set([q, ...aliasesTried])];
 
   const key = cacheKey(q);
   const cached = getCached(key);
   if (cached) return cached;
 
-  const sourceResults = await Promise.allSettled([
-    fetchSteamGridDbCandidates(q),
-    fetchRawgCandidates(q)
-  ]);
-  const candidates = sourceResults.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  const sourceResults = await Promise.allSettled(
+    searchQueries.flatMap((term) => [fetchSteamGridDbCandidates(term), fetchRawgCandidates(term)])
+  );
+  const dedupe = new Map();
+  for (const result of sourceResults) {
+    if (result.status !== 'fulfilled') continue;
+    for (const candidate of result.value || []) {
+      const keyPart = `${normalizeTitle(candidate.source)}|${normalizeTitle(candidate.title)}|${String(candidate.image || '').trim()}`;
+      if (!dedupe.has(keyPart)) dedupe.set(keyPart, candidate);
+    }
+  }
+  const candidates = [...dedupe.values()].filter((candidate) => isRemoteCoverUrl(candidate.image));
   const ranked = rankGameCoverCandidates(q, candidates);
   const payload = {
     ok: Boolean(ranked.selected?.image),
     query: q,
+    normalizedQuery,
+    aliasesTried,
     selected: ranked.selected,
     image: ranked.selected?.image || '',
     candidates: ranked.candidates
@@ -341,6 +389,10 @@ export function clearGameCoverCache() {
 
 export const gameCoverInternals = {
   normalizeTitle,
+  aliasesForQuery,
+  isOfficialAliasMatch,
+  isRemoteCoverUrl,
+  OFFICIAL_TITLE_ALIASES,
   isTitleMatch,
   hasCriticalConflict,
   TITLE_MISMATCH_CONFIDENCE_CAP,
