@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return (
       data?.ok === true &&
       Boolean(data?.selected) &&
-      data.selected.titleMatch === true &&
+      (data.selected.titleMatch === true || data.selected.aliasMatch === true) &&
       Boolean(image) &&
       TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase()) &&
       isRemoteHttpUrl(image)
