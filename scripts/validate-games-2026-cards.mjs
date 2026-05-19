@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {
+  gameCoverInternals,
+  scoreGameCoverCandidate
+} from '../backend/src/services/gameCoverService.js';
 
 const frontendSource = readFileSync(new URL('../front/assets/js/games-2026-feature.js', import.meta.url), 'utf8');
 const gamesHtml = readFileSync(new URL('../front/games.html', import.meta.url), 'utf8');
@@ -72,5 +76,52 @@ assert.ok(renderFallbackCardBody.includes('Aguardando capa oficial'), 'renderFal
 assert.equal(scriptIncludes.length, 1, 'front/games.html deve conter exatamente uma inclusão de games-2026-feature.js');
 assert.equal(scriptIncludes[0][1], '20260517-api-original-covers-03', 'cache-buster deve ser 20260517-api-original-covers-03');
 assert.ok(!gamesHtml.includes('20260517-api-covers-02'), 'cache-buster antigo 20260517-api-covers-02 não pode existir em front/games.html');
+
+const {
+  aliasesForQuery,
+  isOfficialAliasMatch,
+  isRemoteCoverUrl
+} = gameCoverInternals;
+
+assert.deepEqual(
+  aliasesForQuery('Diablo IV: Senhor do Ódio'),
+  ['diablo 4', 'diablo 4 vessel of hatred'],
+  'aliases normalizados de Diablo IV: Senhor do Ódio devem existir'
+);
+const diabloAlias = scoreGameCoverCandidate('Diablo IV: Senhor do Ódio', {
+  source: 'rawg',
+  title: 'Diablo IV',
+  image: 'https://images.example/diablo-iv.jpg'
+});
+assert.equal(diabloAlias.titleMatch, false, 'Diablo IV alias não deve ser titleMatch');
+assert.equal(diabloAlias.aliasMatch, true, 'Diablo IV alias deve ser aliasMatch');
+assert.equal(diabloAlias.accepted, true, 'Diablo IV alias oficial deve ser aceito');
+
+assert.equal(isOfficialAliasMatch('Duskbloods', 'Duskwood'), false, 'Duskwood não pode ser alias oficial');
+assert.equal(isOfficialAliasMatch('Duskbloods', 'DarkBlood'), false, 'DarkBlood não pode ser alias oficial');
+assert.equal(isOfficialAliasMatch('Duskbloods', 'DarkBlood Reborn'), false, 'DarkBlood Reborn não pode ser alias oficial');
+
+assert.equal(
+  scoreGameCoverCandidate('Saros', { source: 'rawg', title: 'Saros', image: 'https://images.example/saros.jpg' }).titleMatch,
+  true,
+  'Saros deve continuar aceito por titleMatch'
+);
+assert.equal(
+  scoreGameCoverCandidate('Marvel Wolverine', { source: 'rawg', title: 'Marvel Wolverine', image: 'https://images.example/wolv.jpg' }).titleMatch,
+  true,
+  'Marvel Wolverine deve continuar aceito por titleMatch'
+);
+assert.equal(
+  scoreGameCoverCandidate('Nioh 3', { source: 'rawg', title: 'Arma 3', image: 'https://images.example/arma3.jpg' }).accepted,
+  false,
+  'Arma 3 não pode ser aceito para Nioh 3'
+);
+assert.equal(
+  scoreGameCoverCandidate('Final Fantasy VII Remake Parte 3', { source: 'rawg', title: 'Final Fantasy III', image: 'https://images.example/ff3.jpg' }).accepted,
+  false,
+  'Final Fantasy III não pode ser aceito para Final Fantasy VII Remake Parte 3'
+);
+assert.equal(isRemoteCoverUrl('assets/img/game.svg'), false, 'assets/img/*.svg deve ser rejeitado');
+assert.equal(isRemoteCoverUrl('https://cdn.example/game.jpg'), true, 'URL remota http/https deve ser aceita');
 
 console.log('validate-games-2026-cards: ok');
