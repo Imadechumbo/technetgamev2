@@ -40,7 +40,7 @@ const renderMediaBody = extractFunctionBody(frontendSource, 'renderMedia');
 const scriptIncludes = [...gamesHtml.matchAll(/<script\b[^>]*\bgames-2026-feature\.js\?v=([^"'\s>]+)[^>]*><\/script>/g)];
 
 assert.match(frontendSource, /\/api\/games\/cover/, 'frontend deve chamar /api/games/cover');
-assert.match(frontendSource, /selected\.titleMatch\s*===\s*true/, 'frontend deve exigir selected.titleMatch === true');
+assert.match(frontendSource, /selected\.titleMatch\s*===\s*true\s*\|\|\s*data\.selected\.aliasMatch\s*===\s*true/, 'frontend deve aceitar selected.titleMatch === true OU selected.aliasMatch === true');
 assert.ok(
   frontendSource.includes('TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase())'),
   'frontend deve validar fonte com TRUSTED_API_COVER_SOURCES.has(String(source).toLowerCase())'
