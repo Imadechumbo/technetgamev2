@@ -74,7 +74,7 @@ assert.ok(renderFallbackCardBody.includes('cover-missing'), 'renderFallbackCard 
 assert.ok(renderFallbackCardBody.includes('Aguardando capa oficial'), 'renderFallbackCard deve informar Aguardando capa oficial');
 
 assert.equal(scriptIncludes.length, 1, 'front/games.html deve conter exatamente uma inclusão de games-2026-feature.js');
-assert.equal(scriptIncludes[0][1], '20260517-api-original-covers-03', 'cache-buster deve ser 20260517-api-original-covers-03');
+assert.equal(scriptIncludes[0][1], '20260519-api-or-local-real-covers-06', 'cache-buster deve ser 20260519-api-or-local-real-covers-06');
 assert.ok(!gamesHtml.includes('20260517-api-covers-02'), 'cache-buster antigo 20260517-api-covers-02 não pode existir em front/games.html');
 
 const {

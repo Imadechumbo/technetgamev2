@@ -49,11 +49,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   ];
 
-  const FORCE_COVERS = {
+  const LOCAL_REAL_COVERS = {
     'Control: Resonant': 'assets/img/game-control.png',
     'Marvel’s Wolverine': 'assets/img/game-wolverine.png',
     "Marvel's Wolverine": 'assets/img/game-wolverine.png',
     'Saros': 'assets/img/game-saros.png',
+    'Resident Evil Requiem': 'assets/img/game-requiem-real.png',
+    'Grand Theft Auto VI': 'assets/img/game-gta6-real.jpg',
+    'Crimson Desert': 'assets/img/game-crimson-real.jpg',
+    'Pragmata': 'assets/img/game-pragmata-real.png',
     'Duskbloods': 'assets/img/game-duskbloods.png',
     'Pokémon Pokopia': 'assets/img/game-pokopia.jpg',
     'Pokemon Pokopia': 'assets/img/game-pokopia.jpg'
@@ -70,24 +74,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function isAllowedLocalRealCover(value = '') {
+    return /^assets\/img\/.+\.(?:png|jpe?g|webp)$/i.test(String(value || '').trim());
+  }
+
+  function getLocalRealCover(title = '') {
+    if (!title) return null;
+
+    const localRealCover =
+      LOCAL_REAL_COVERS[title] ||
+      LOCAL_REAL_COVERS[title.replace(/’/g, "'")] ||
+      LOCAL_REAL_COVERS[title.replace(/'/g, '’')] ||
+      null;
+
+    return isAllowedLocalRealCover(localRealCover) ? localRealCover : null;
+  }
+
   function apiCoverImage(data) {
     return data?.selected?.image || data?.image || data?.cover || '';
   }
 
   function apiCoverSource(data) {
     return data?.selected?.source || data?.source || '';
-  }
-
-  function getForcedCover(title = '') {
-    if (!title) return null;
-
-    const forced =
-      FORCE_COVERS[title] ||
-      FORCE_COVERS[title.replace(/’/g, "'")] ||
-      FORCE_COVERS[title.replace(/'/g, '’')] ||
-      null;
-
-    return isRemoteHttpUrl(forced) ? forced : null;
   }
 
   function escapeHtml(value = '') {
@@ -167,13 +175,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function mediaImage(game) {
-    const forced = getForcedCover(game.title);
+    const apiCover = await resolveApiCover(game);
+    if (apiCover?.image) return apiCover;
 
-    if (forced) {
-      return { image: forced, source: 'forced' };
+    const localRealCover = getLocalRealCover(game.title);
+    if (localRealCover) {
+      return { image: localRealCover, source: 'local-real' };
     }
 
-    return resolveApiCover(game);
+    return null;
   }
 
   function skeletonCard(game) {
