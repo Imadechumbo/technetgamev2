@@ -60,7 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Pragmata': 'assets/img/game-pragmata-real.png',
     'Duskbloods': 'assets/img/game-duskbloods.png',
     'Pokémon Pokopia': 'assets/img/game-pokopia.jpg',
-    'Pokemon Pokopia': 'assets/img/game-pokopia.jpg'
+    'Pokemon Pokopia': 'assets/img/game-pokopia.jpg',
+    "Assassin's Creed Codename Hexe": 'assets/img/game-cover-assassin-s-creed-codename-hexe.svg',
+    'Assassins Creed Codename Hexe': 'assets/img/game-cover-assassins-creed-codename-hexe.svg'
   };
 
   const TRUSTED_API_COVER_SOURCES = new Set(['rawg', 'steamgriddb', 'igdb']);
@@ -75,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function isAllowedLocalRealCover(value = '') {
-    return /^assets\/img\/.+\.(?:png|jpe?g|webp)$/i.test(String(value || '').trim());
+    return /^assets\/img\/.+\.(?:png|jpe?g|webp|svg)$/i.test(String(value || '').trim());
   }
 
   function getLocalRealCover(title = '') {
