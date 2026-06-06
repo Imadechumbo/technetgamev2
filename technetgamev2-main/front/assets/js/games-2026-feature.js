@@ -61,8 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Duskbloods': 'assets/img/game-duskbloods.png',
     'Pokémon Pokopia': 'assets/img/game-pokopia.jpg',
     'Pokemon Pokopia': 'assets/img/game-pokopia.jpg',
-    ‘Assassin’s Creed Codename Hexe’: ‘assets/img/game-cover-assassin-s-creed-codename-hexe.png’,
-    "Assassin’s Creed Codename Hexe": ‘assets/img/game-cover-assassin-s-creed-codename-hexe.png’
+    'Assassin’s Creed Codename Hexe': 'assets/img/game-cover-assassin-s-creed-codename-hexe.svg'
   };
 
   const TRUSTED_API_COVER_SOURCES = new Set(['rawg', 'steamgriddb', 'igdb']);
