@@ -8,6 +8,10 @@
 
   const LOCAL_IMAGE_RULES = [
     {
+      match: ['rtx pro 6000', 'nvidia rtx pro 6000', 'blackwell workstation', 'rtx pro 6000 blackwell'],
+      image: 'assets/img/article-rtx-pro-6000.jpg'
+    },
+    {
       match: ['steam deck', 'valve handheld', 'steam deck oled'],
       image: 'assets/img/article-steam-deck.jpg'
     },
