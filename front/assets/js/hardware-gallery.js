@@ -205,23 +205,51 @@
     return article;
   }
 
+  const UNSPLASH_KEY = 'OjBilHUsVKMUU4TJ8QnJXLCMKRxveUtRID8h9aiXpbo';
+  const PEXELS_KEY   = 'NqFRmwCnxP4qzSYEFJQQPEaOjoZ0ZtT12D645tNrJ2xRoV79q53BMHqsE_ME';
+  const _imgCache = {};
+
+  async function fetchUnsplash(query) {
+    const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&per_page=1&orientation=landscape&client_id=' + UNSPLASH_KEY;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('unsplash fail');
+    const data = await res.json();
+    const photo = data.results && data.results[0];
+    return photo ? photo.urls.regular : null;
+  }
+
+  async function fetchPexels(query) {
+    const url = 'https://api.pexels.com/v1/search?query=' + encodeURIComponent(query) + '&per_page=1&orientation=landscape';
+    const res = await fetch(url, { headers: { Authorization: PEXELS_KEY } });
+    if (!res.ok) throw new Error('pexels fail');
+    const data = await res.json();
+    const photo = data.photos && data.photos[0];
+    return photo ? photo.src.large : null;
+  }
+
   async function fetchImage(query, endpointType) {
+    // 1. Regra local tem prioridade absoluta
     const localImage = resolveLocalImage(query);
     if (localImage) return localImage;
 
-    const cleanQuery = encodeURIComponent(query || 'hardware gamer');
-    const path = endpointType === 'game'
-      ? '/api/media/game-image?title=' + cleanQuery
-      : '/api/media/hardware-image?q=' + cleanQuery;
+    // 2. Cache em memória
+    const cacheKey = query + ':' + (endpointType || '');
+    if (_imgCache[cacheKey]) return _imgCache[cacheKey];
 
+    // 3. Tentar Unsplash
     try {
-      const res = await fetch(apiUrl(path));
-      if (!res.ok) throw new Error('Falha ao buscar imagem');
-      const data = await res.json();
-      return (data && (data.image || data.url)) ? (data.image || data.url) : 'assets/img/fallback-game-cover.svg';
-    } catch (error) {
-      return 'assets/img/fallback-game-cover.svg';
-    }
+      const img = await fetchUnsplash(query);
+      if (img) { _imgCache[cacheKey] = img; return img; }
+    } catch (_) {}
+
+    // 4. Tentar Pexels como backup
+    try {
+      const img = await fetchPexels(query);
+      if (img) { _imgCache[cacheKey] = img; return img; }
+    } catch (_) {}
+
+    // 5. Fallback final
+    return 'assets/img/fallback-game-cover.svg';
   }
 
   async function hydrateGallery(section) {
