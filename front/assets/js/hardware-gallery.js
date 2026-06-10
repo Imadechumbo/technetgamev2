@@ -8,6 +8,10 @@
 
   const LOCAL_IMAGE_RULES = [
     {
+      match: ['steam deck', 'valve handheld', 'steam deck oled'],
+      image: 'assets/img/article-steam-deck.jpg'
+    },
+    {
       match: ['windows 11 linux gaming', 'windows linux gaming performance'],
       image: 'assets/img/article-windows-linux-gaming.jpg'
     },
