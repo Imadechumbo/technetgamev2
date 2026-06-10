@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "file": "CHANGE_REQUEST.md",
+      "exists": true
+    },
+    {
+      "file": "SPEC.md",
+      "exists": true
+    },
+    {
+      "file": "TEST_PLAN.md",
+      "exists": true
+    },
+    {
+      "file": "ROLLBACK_PLAN.md",
+      "exists": true
+    }
+  ],
+  "track": "FRONT MOBILE",
+  "missing_files": [],
+  "blocking_reasons": []
+}

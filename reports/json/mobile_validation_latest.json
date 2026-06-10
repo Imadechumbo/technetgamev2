@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-04-17T02:41:31.660Z",
+  "status": "PASS",
+  "results": [
+    {
+      "name": "home",
+      "url": "https://technetgame.com.br/",
+      "status": "PASS",
+      "screenshot": "C:\\Users\\imadechumbo\\Desktop\\teste\\atualizacao-segura-v2-9-sddf-enforced-engine\\reports\\mobile\\home.png",
+      "notes": [
+        "Elementos clicáveis detectados: 158"
+      ]
+    },
+    {
+      "name": "technet-ai",
+      "url": "https://technetgame.com.br/technet-ai",
+      "status": "PASS",
+      "screenshot": "C:\\Users\\imadechumbo\\Desktop\\teste\\atualizacao-segura-v2-9-sddf-enforced-engine\\reports\\mobile\\technet-ai.png",
+      "notes": [
+        "Elementos clicáveis detectados: 158"
+      ]
+    },
+    {
+      "name": "relatorios",
+      "url": "https://technetgame.com.br/relatorios/",
+      "status": "PASS",
+      "screenshot": "C:\\Users\\imadechumbo\\Desktop\\teste\\atualizacao-segura-v2-9-sddf-enforced-engine\\reports\\mobile\\relatorios.png",
+      "notes": [
+        "Elementos clicáveis detectados: 158"
+      ]
+    }
+  ]
+}

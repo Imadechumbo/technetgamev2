@@ -1,0 +1,52 @@
+{
+  "project": "technetgame",
+  "mode": "full",
+  "env": "prod",
+  "decision": "PASS",
+  "auto_heal": {
+    "rollback_triggered": false,
+    "attempts_used": 1
+  },
+  "results": [
+    {
+      "label": "SDDF Enforcement Engine",
+      "summary": "Seed V2.11.",
+      "details": [
+        "Governança."
+      ],
+      "status": "PASS"
+    },
+    {
+      "label": "SDDF Validator",
+      "summary": "Seed V2.11.",
+      "details": [
+        "Health."
+      ],
+      "status": "PASS"
+    },
+    {
+      "label": "UI Diff Real",
+      "summary": "Seed V2.11.",
+      "details": [
+        "Intelligent diff."
+      ],
+      "status": "PASS"
+    },
+    {
+      "label": "Mobile Validation Runner",
+      "summary": "Seed V2.11.",
+      "details": [
+        "Mobile hard lock."
+      ],
+      "status": "PASS"
+    },
+    {
+      "label": "Performance Guard",
+      "summary": "Seed V2.11.",
+      "details": [
+        "Performance guard."
+      ],
+      "status": "PASS"
+    }
+  ]
+}
