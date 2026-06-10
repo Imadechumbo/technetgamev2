@@ -3213,6 +3213,8 @@ tr[style*="background:#fff"] td,
 tr[style*="background:#fff"] th { color: #111 !important; }
 tr[style*="background:white"] td,
 tr[style*="background:white"] th { color: #111 !important; }
+.article-content tbody tr td { color: #111 !important; }
+.article-content tbody tr th { color: #111 !important; }
 .seo-links-list { margin: 12px 0 0; }
 .seo-links-list a { text-decoration: none; }
 
