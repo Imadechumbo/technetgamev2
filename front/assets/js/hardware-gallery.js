@@ -8,6 +8,26 @@
 
   const LOCAL_IMAGE_RULES = [
     {
+      match: ['windows 11 linux gaming', 'windows linux gaming performance'],
+      image: 'assets/img/article-windows-linux-gaming.jpg'
+    },
+    {
+      match: ['ryzen vs intel', 'amd ryzen intel cpu'],
+      image: 'assets/img/article-ryzen-vs-intel.jpg'
+    },
+    {
+      match: ['pc para ia local', 'ai workstation gpu machine learning'],
+      image: 'assets/img/article-pc-ia-local.webp'
+    },
+    {
+      match: ['busca semantica', 'semantic search embeddings'],
+      image: 'assets/img/article-busca-semantica.png'
+    },
+    {
+      match: ['kv cache', 'google turboquant'],
+      image: 'assets/img/article-kv-cache.png'
+    },
+    {
       match: ['rtx 5090'],
       image: 'assets/img/hardware-rtx-5090.webp'
     },
