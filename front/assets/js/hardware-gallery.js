@@ -42,6 +42,54 @@
     {
       match: ['notebook gamer', 'notebook gamer rtx 4070', 'notebook gamer high performance', 'gaming laptop'],
       image: 'assets/img/hardware-notebook-gamer.jpg'
+    },
+    {
+      match: ['steam deck', 'valve deck', 'handheld gaming', 'steam deck valve handheld'],
+      image: 'assets/img/hardware-notebook-gamer.jpg'
+    },
+    {
+      match: ['ryzen vs intel', 'ryzen intel cpu', 'amd ryzen intel core'],
+      image: 'assets/img/hardware-cpu-placas-fortes.jpg'
+    },
+    {
+      match: ['pc gamer custo', 'montar pc gamer', 'pc build setup'],
+      image: 'assets/img/hardware-rtx-5060ti-rx-9060xt-arc-b580.jpg'
+    },
+    {
+      match: ['ia local', 'ai workstation', 'pc para ia', 'ram ddr5 ia'],
+      image: 'assets/img/hardware-ram-2026.jpg'
+    },
+    {
+      match: ['990 pro', 'sn850x', 'nvme comparison', 'ssd comparison', '990 pro vs sn850x'],
+      image: 'assets/img/hardware-ssd-nvme-ps5.webp'
+    },
+    {
+      match: ['windows linux', 'linux gaming', 'dual boot'],
+      image: 'assets/img/hardware-notebook-gamer.jpg'
+    },
+    {
+      match: ['gta 6', 'gta vi', 'rockstar'],
+      image: 'assets/img/hardware-gpu-2026.png'
+    },
+    {
+      match: ['ps5 vs pc', 'playstation vs pc', 'console vs pc'],
+      image: 'assets/img/hardware-rx-9070xt-rtx-5070ti-rx-9070.webp'
+    },
+    {
+      match: ['dlss vs fsr', 'dlss fsr', 'upscaling'],
+      image: 'assets/img/hardware-rtx-5090.webp'
+    },
+    {
+      match: ['monitor gamer', 'gaming monitor', '144hz monitor'],
+      image: 'assets/img/hardware-gpu-2026.png'
+    },
+    {
+      match: ['headset gamer', 'gaming headset'],
+      image: 'assets/img/hardware-notebook-gamer.jpg'
+    },
+    {
+      match: ['overclocar ram', 'ddr5 xmp', 'ram ddr5 overclock'],
+      image: 'assets/img/hardware-ram-2026.jpg'
     }
   ];
 
