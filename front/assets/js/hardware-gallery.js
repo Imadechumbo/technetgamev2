@@ -205,50 +205,31 @@
     return article;
   }
 
-  const UNSPLASH_KEY = 'OjBilHUsVKMUU4TJ8QnJXLCMKRxveUtRID8h9aiXpbo';
-  const PEXELS_KEY   = 'NqFRmwCnxP4qzSYEFJQQPEaOjoZ0ZtT12D645tNrJ2xRoV79q53BMHqsE_ME';
-  const _imgCache = {};
-
-  async function fetchUnsplash(query) {
-    const url = 'https://api.unsplash.com/search/photos?query=' + encodeURIComponent(query) + '&per_page=1&orientation=landscape&client_id=' + UNSPLASH_KEY;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('unsplash fail');
-    const data = await res.json();
-    const photo = data.results && data.results[0];
-    return photo ? photo.urls.regular : null;
-  }
-
-  async function fetchPexels(query) {
-    const url = 'https://api.pexels.com/v1/search?query=' + encodeURIComponent(query) + '&per_page=1&orientation=landscape';
-    const res = await fetch(url, { headers: { Authorization: PEXELS_KEY } });
-    if (!res.ok) throw new Error('pexels fail');
-    const data = await res.json();
-    const photo = data.photos && data.photos[0];
-    return photo ? photo.src.large : null;
-  }
-
   async function fetchImage(query, endpointType) {
-    // 1. Regra local tem prioridade absoluta
+    // 1. Regra local tem prioridade absoluta (zero latência)
     const localImage = resolveLocalImage(query);
     if (localImage) return localImage;
 
-    // 2. Cache em memória
-    const cacheKey = query + ':' + (endpointType || '');
-    if (_imgCache[cacheKey]) return _imgCache[cacheKey];
+    // 2. Chamar a API com o query limpo
+    const cleanQuery = encodeURIComponent(String(query || 'hardware gamer').trim());
+    const path = endpointType === 'game'
+      ? '/api/media/game-image?title=' + cleanQuery
+      : '/api/media/hardware-image?q=' + cleanQuery;
 
-    // 3. Tentar Unsplash
     try {
-      const img = await fetchUnsplash(query);
-      if (img) { _imgCache[cacheKey] = img; return img; }
-    } catch (_) {}
+      const res = await fetch(apiUrl(path), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        mode: 'cors'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const img = data && (data.image || data.url || data.photo);
+      if (img && typeof img === 'string' && img.startsWith('http')) return img;
+    } catch (err) {
+      console.warn('[hardware-gallery] fetchImage falhou para query:', query, '→', err.message);
+    }
 
-    // 4. Tentar Pexels como backup
-    try {
-      const img = await fetchPexels(query);
-      if (img) { _imgCache[cacheKey] = img; return img; }
-    } catch (_) {}
-
-    // 5. Fallback final
     return 'assets/img/fallback-game-cover.svg';
   }
 
