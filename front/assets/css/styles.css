@@ -3205,6 +3205,14 @@ a.btn.btn-secondary {
 .container.article-content { max-width: 980px; }
 .article-content h2 { margin-top: 34px; margin-bottom: 14px; }
 .article-content p, .article-content li { line-height: 1.75; }
+
+/* Fix: tbody rows with light bg inherit --text (#e8f4ee near-white) from body — force dark */
+tr[style*="background:#f9f9f9"] td,
+tr[style*="background:#f9f9f9"] th { color: #111 !important; }
+tr[style*="background:#fff"] td,
+tr[style*="background:#fff"] th { color: #111 !important; }
+tr[style*="background:white"] td,
+tr[style*="background:white"] th { color: #111 !important; }
 .seo-links-list { margin: 12px 0 0; }
 .seo-links-list a { text-decoration: none; }
 
