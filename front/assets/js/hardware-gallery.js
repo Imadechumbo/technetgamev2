@@ -238,7 +238,10 @@
       const query = img.getAttribute('data-hardware-query');
       if (!query) return;
       const image = await fetchImage(query, 'hardware');
-      if (image) img.src = image;
+      if (image && image !== img.src) {
+        img.src = '';
+        img.src = image;
+      }
     }));
   }
 
@@ -246,6 +249,6 @@
     document.querySelectorAll('.js-hardware-gallery').forEach((section) => {
       hydrateGallery(section);
     });
-    hydrateInlineImages();
+    setTimeout(hydrateInlineImages, 100);
   });
 })();
