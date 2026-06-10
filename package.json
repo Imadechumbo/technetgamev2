@@ -1,0 +1,33 @@
+{
+  "name": "atualizacao-segura-v2-14-github-actions-autodeploy-rollback",
+  "version": "2.14.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "panel": "node panel/server.mjs",
+    "ui:capture": "node ui/capture_ui.mjs",
+    "ui:compare": "node ui/compare_ui.mjs",
+    "ui:baseline": "node ui/update_baseline.mjs",
+    "mobile:validate": "node mobile-validator/run_mobile_validation.mjs",
+    "gate": "python safe_update.py --project technetgame --mode full --env prod",
+    "cf:purge": "python scripts/purge_cloudflare_cache.py",
+    "postdeploy:validate": "python scripts/post_deploy_validate.py",
+    "perf:validate": "node perf-validator/run_perf_validation.mjs",
+    "contract:validate": "python contract-validator/run_contract_validation.py",
+    "vitals:validate": "node perf-validator/run_perf_validation.mjs",
+    "stable:record": "python scripts/record_stable_release.py --front-zip \"%STABLE_FRONT_ZIP%\" --back-zip \"%STABLE_BACK_ZIP%\" --label \"stable\"",
+    "release:auto": "python scripts/auto_rollback_release.py --project technetgame --front-zip \"%CANDIDATE_FRONT_ZIP%\" --back-zip \"%CANDIDATE_BACK_ZIP%\" --env prod",
+    "rollback:front": "python scripts/rollback_frontend.py",
+    "rollback:back": "python scripts/rollback_backend.py",
+    "backend:bundle": "python scripts/build_backend_bundle.py --source backend --output dist/backend-release.zip",
+    "backend:deploy:eb": "python scripts/deploy_backend_eb.py",
+    "backend:rollback:eb": "python scripts/rollback_backend_eb.py",
+    "release:assert": "python scripts/assert_release_pass.py",
+    "cf:purge:urls": "python scripts/purge_cloudflare_cache.py --files \"%CLOUDFLARE_PURGE_URLS%\""
+  },
+  "dependencies": {
+    "pixelmatch": "^5.3.0",
+    "playwright": "^1.52.0",
+    "pngjs": "^7.0.0"
+  }
+}

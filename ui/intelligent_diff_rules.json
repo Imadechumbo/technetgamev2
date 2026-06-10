@@ -1,0 +1,5 @@
+{
+  "ignore_small_pct_under": 0.08,
+  "warn_pct_under": 0.4,
+  "fail_pct_at_or_above": 1.2
+}

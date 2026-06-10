@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Saros">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12243b"/>
+      <stop offset="100%" stop-color="#203b69"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="1030" cy="120" r="90" fill="rgba(255,255,255,.08)"/>
+  <circle cx="180" cy="560" r="130" fill="rgba(255,255,255,.06)"/>
+  <text x="72" y="90" fill="#dff8eb" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28">TechNetGame • Especial Jogos</text>
+  <text x="72" y="270" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="78">Saros</text>
+  <text x="72" y="350" fill="#e7efe9" font-family="Arial, Helvetica, sans-serif" font-weight="500" font-size="34">Housemarque • sci-fi action</text>
+  <rect x="72" y="420" rx="24" ry="24" width="220" height="58" fill="rgba(255,255,255,.14)"/>
+  <text x="102" y="458" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28">30/04/2026</text>
+</svg>

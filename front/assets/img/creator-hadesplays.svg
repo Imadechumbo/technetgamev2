@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="HadesPlays">
+<defs>
+  <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+    <stop offset="0%" stop-color="#14532d"/>
+    <stop offset="100%" stop-color="#0f172a"/>
+  </linearGradient>
+</defs>
+<rect width="1200" height="675" fill="#04100b"/>
+<rect x="18" y="18" width="1164" height="639" rx="34" fill="url(#g)" stroke="rgba(255,255,255,0.18)"/>
+<circle cx="980" cy="120" r="140" fill="rgba(255,255,255,0.08)"/>
+<circle cx="180" cy="560" r="160" fill="rgba(255,255,255,0.06)"/>
+<text x="72" y="156" fill="#dff9ec" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">TechNetGame • Especial Jogos</text>
+<text x="72" y="280" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="900">HadesPlays</text>
+<text x="72" y="350" fill="#dff9ec" font-family="Arial, Helvetica, sans-serif" font-size="28">Cobertura de AAA, hype e desempenho no console</text>
+<rect x="72" y="410" width="280" height="58" rx="29" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)"/>
+<text x="104" y="447" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Creator BR</text>
+</svg>

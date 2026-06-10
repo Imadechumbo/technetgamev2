@@ -1,0 +1,118 @@
+{
+  "version": "v5-full-pro",
+  "frame": {
+    "width": 560,
+    "height": 560,
+    "cols": 6,
+    "rows": 4,
+    "fps": 7
+  },
+  "agents": {
+    "tech": {
+      "slug": "tecnico",
+      "sheet": "/assets/agents-v3/sprites/tecnico_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/analista-tecnico.png"
+    },
+    "games": {
+      "slug": "gamer",
+      "sheet": "/assets/agents-v3/sprites/gamer_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/especialista-games.png"
+    },
+    "market": {
+      "slug": "mercado",
+      "sheet": "/assets/agents-v3/sprites/mercado_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/analista-mercado.png"
+    },
+    "security": {
+      "slug": "seguranca",
+      "sheet": "/assets/agents-v3/sprites/seguranca_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/especialista-seguranca.png"
+    },
+    "ai": {
+      "slug": "ia",
+      "sheet": "/assets/agents-v3/sprites/ia_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/analista-ia.png"
+    },
+    "hardware": {
+      "slug": "hardware",
+      "sheet": "/assets/agents-v3/sprites/hardware_spritesheet_v3_ultra_realista.png",
+      "fallback": "/assets/img/openclaw-agents/especialista-hardware.png"
+    }
+  },
+  "states": {
+    "idle": {
+      "row": 0,
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 6,
+      "effect": "idle"
+    },
+    "thinking": {
+      "row": 1,
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 8,
+      "effect": "thinking"
+    },
+    "success": {
+      "row": 2,
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 7,
+      "effect": "success"
+    },
+    "error": {
+      "row": 3,
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 7,
+      "effect": "error"
+    },
+    "alert": {
+      "row": 1,
+      "frames": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "fps": 10,
+      "effect": "alert"
+    },
+    "hover": {
+      "row": 2,
+      "frames": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 9,
+      "effect": "hover"
+    }
+  }
+}

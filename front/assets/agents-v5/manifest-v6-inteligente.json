@@ -1,0 +1,23 @@
+{
+  "version": "v6-inteligente",
+  "inherits": "v5-full-pro",
+  "features": {
+    "frontend_intelligence": true,
+    "preload": true,
+    "feed_events": [
+      "technet:feed-grid-loading",
+      "technet:feed-grid-rendered",
+      "technet:feed-grid-error"
+    ],
+    "backend_health_sync": "/api/health",
+    "fallback_mode": "local-smart"
+  },
+  "states": [
+    "idle",
+    "thinking",
+    "success",
+    "error",
+    "alert",
+    "hover"
+  ]
+}

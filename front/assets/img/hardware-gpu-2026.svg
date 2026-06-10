@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" fill="none">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+<stop stop-color="#071411"/>
+<stop offset="1" stop-color="#0c231d"/>
+</linearGradient>
+<linearGradient id="card" x1="120" y1="100" x2="1080" y2="590" gradientUnits="userSpaceOnUse">
+<stop stop-color="#0f2f27"/>
+<stop offset="1" stop-color="#123b2f"/>
+</linearGradient>
+</defs>
+<rect width="1200" height="675" rx="32" fill="url(#bg)"/>
+<g opacity="0.18" stroke="#20e391">
+<path d="M0 84H1200"/><path d="M0 168H1200"/><path d="M0 252H1200"/><path d="M0 336H1200"/><path d="M0 420H1200"/><path d="M0 504H1200"/><path d="M0 588H1200"/>
+<path d="M120 0V675"/><path d="M240 0V675"/><path d="M360 0V675"/><path d="M480 0V675"/><path d="M600 0V675"/><path d="M720 0V675"/><path d="M840 0V675"/><path d="M960 0V675"/><path d="M1080 0V675"/>
+</g>
+<rect x="98" y="96" width="1004" height="484" rx="30" fill="url(#card)" stroke="#1fd58a" stroke-opacity="0.3"/>
+<rect x="160" y="182" width="520" height="210" rx="24" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.34"/>
+<rect x="200" y="224" width="220" height="128" rx="14" fill="#153f33"/>
+<circle cx="575" cy="245" r="42" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.35"/>
+<circle cx="575" cy="245" r="18" fill="#20e391" fill-opacity="0.7"/>
+<circle cx="575" cy="330" r="42" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.35"/>
+<circle cx="575" cy="330" r="18" fill="#20e391" fill-opacity="0.7"/>
+<rect x="725" y="180" width="305" height="94" rx="18" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.22"/>
+<rect x="725" y="294" width="305" height="94" rx="18" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.22"/>
+<rect x="725" y="408" width="305" height="94" rx="18" fill="#0a1f1a" stroke="#2df4a2" stroke-opacity="0.22"/>
+<text x="760" y="218" fill="#9be8c2" font-family="Arial, sans-serif" font-size="20" font-weight="700">TOP ABSOLUTO</text>
+<text x="760" y="250" fill="#ffffff" font-family="Arial, sans-serif" font-size="34" font-weight="800">RTX 5090</text>
+<text x="760" y="326" fill="#9be8c2" font-family="Arial, sans-serif" font-size="20" font-weight="700">CUSTO-BENEFÍCIO</text>
+<text x="760" y="358" fill="#ffffff" font-family="Arial, sans-serif" font-size="34" font-weight="800">RX 9070 XT</text>
+<text x="760" y="440" fill="#9be8c2" font-family="Arial, sans-serif" font-size="20" font-weight="700">PREMIUM EQUILIBRADA</text>
+<text x="760" y="472" fill="#ffffff" font-family="Arial, sans-serif" font-size="34" font-weight="800">RTX 5070 Ti</text>
+<text x="98" y="70" fill="#9be8c2" font-family="Arial, sans-serif" font-size="30" font-weight="700">Tier list editorial 2026</text>
+<text x="98" y="623" fill="#ffffff" font-family="Arial, sans-serif" font-size="56" font-weight="800">Melhores placas de vídeo</text>
+<text x="98" y="659" fill="#b9d4cb" font-family="Arial, sans-serif" font-size="28" font-weight="500">4K premium • 1440p forte • opções atuais para todos os bolsos</text>
+</svg>

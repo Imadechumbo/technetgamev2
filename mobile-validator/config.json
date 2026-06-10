@@ -1,0 +1,26 @@
+{
+  "targets": [
+    {
+      "name": "home",
+      "url": "https://technetgame.com.br/"
+    },
+    {
+      "name": "technet-ai",
+      "url": "https://technetgame.com.br/technet-ai"
+    },
+    {
+      "name": "relatorios",
+      "url": "https://technetgame.com.br/relatorios/"
+    }
+  ],
+  "checks": {
+    "network_idle_wait_ms": 2500,
+    "screenshot": true,
+    "assert_no_chrome_error_strings": [
+      "ERR_NETWORK_CHANGED",
+      "ERR_CONNECTION",
+      "This site can’t be reached",
+      "A conexão foi interrompida"
+    ]
+  }
+}

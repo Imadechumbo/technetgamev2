@@ -1,0 +1,1045 @@
+.hermes-ranking--enhanced {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: 36px;
+  border: 1px solid rgba(79, 230, 181, 0.14);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(155, 199, 109, 0.22), rgba(7, 18, 15, 0) 18%),
+    radial-gradient(circle at 50% 58%, rgba(32, 101, 80, 0.16), rgba(7, 18, 15, 0) 36%),
+    linear-gradient(180deg, rgba(3, 16, 13, 0.98), rgba(2, 10, 8, 0.98));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), 0 32px 84px rgba(0,0,0,0.42);
+}
+.hermes-ranking--enhanced::before,
+.hermes-ranking--enhanced::after {
+  content: '';
+  position: absolute;
+  inset: 8% 10%;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.hermes-ranking--enhanced::before {
+  border: 1px solid rgba(95, 200, 155, 0.10);
+  box-shadow: 0 0 80px rgba(43, 174, 131, 0.12), inset 0 0 60px rgba(43, 174, 131, 0.05);
+}
+.hermes-ranking--enhanced::after {
+  inset: 22% 14%;
+  border: 1px solid rgba(95, 200, 155, 0.06);
+}
+.hermes-meeting__hud {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(280px, 1.08fr) minmax(340px, 0.86fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+.hermes-meeting__summary {
+  display: grid;
+  gap: 8px;
+  max-width: 620px;
+}
+.hermes-meeting__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 214, 90, 0.22);
+  background: linear-gradient(180deg, rgba(255, 214, 90, 0.12), rgba(255, 214, 90, 0.04));
+  color: #ffe08a;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.hermes-meeting__summary h3 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.02;
+  color: #f7fff9;
+}
+.hermes-meeting__summary p {
+  margin: 0;
+  color: #b7d0c3;
+  max-width: 62ch;
+}
+.hermes-meeting__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.hermes-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(8, 24, 19, 0.88);
+  border: 1px solid rgba(90, 247, 190, 0.16);
+  color: #dffbf0;
+  font-size: 12px;
+}
+.hermes-chip strong { color: #fff2b0; }
+.hermes-meeting__benchmarks {
+  display: block;
+  max-width: 520px;
+  justify-self: end;
+  align-self: center;
+}
+.hermes-visual-benchmark {
+  border-radius: 28px;
+  border: 1px solid rgba(90,247,190,.12);
+  background: radial-gradient(circle at 84% 0%, rgba(255,214,90,.08), transparent 22%), linear-gradient(180deg, rgba(9,20,17,.97), rgba(4,11,10,.99));
+  box-shadow: 0 18px 34px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.03);
+  padding: 16px 16px 14px;
+}
+.hermes-visual-benchmark__head {
+  margin-bottom: 8px;
+}
+.hermes-visual-benchmark__kicker {
+  display: inline-flex;
+  width: max-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,214,90,.18);
+  background: rgba(255,214,90,.07);
+  color: #c3f1e4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.hermes-visual-benchmark__head h3 {
+  margin: 10px 0 6px;
+  color: #f5fff9;
+  font-size: clamp(18px, 1.7vw, 28px);
+  line-height: 1.02;
+}
+.hermes-visual-benchmark__head p {
+  margin: 0;
+  color: #a7c8bc;
+  line-height: 1.35;
+}
+.hermes-visual-benchmark__bars {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+.hermes-visual-benchmark__bar {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.hermes-visual-benchmark__trend {
+  color: #d8fff6;
+  font-size: 15px;
+  line-height: 1;
+}
+.hermes-visual-benchmark__bar strong {
+  color: #f6fff9;
+  font-size: .84rem;
+}
+.hermes-visual-benchmark__bar i {
+  display: block;
+  width: 100%;
+  max-width: 44px;
+  height: 118px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(15,31,27,.82), rgba(8,18,16,.96));
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 12px 24px rgba(0,0,0,.18);
+}
+.hermes-visual-benchmark__bar i::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 13px;
+  height: max(26%, calc(var(--bench-score, 0) * .88%));
+}
+.hermes-visual-benchmark__bar span:last-of-type {
+  color: #f2fff8;
+  font-size: .8rem;
+  text-align: center;
+  line-height: 1.15;
+  font-weight: 700;
+}
+.hermes-visual-benchmark__bar small {
+  color: #9bc7b7;
+  font-size: .72rem;
+  text-align: center;
+}
+.hermes-visual-benchmark__bar--ai i::after { background: linear-gradient(180deg, rgba(115,217,222,.92), rgba(58,127,128,.9)); }
+.hermes-visual-benchmark__bar--games i::after { background: linear-gradient(180deg, rgba(141,108,196,.94), rgba(76,56,115,.92)); }
+.hermes-visual-benchmark__bar--hardware i::after { background: linear-gradient(180deg, rgba(165,135,82,.94), rgba(116,84,35,.92)); }
+.hermes-visual-benchmark__bar--tech i::after { background: linear-gradient(180deg, rgba(98,122,177,.94), rgba(50,70,114,.92)); }
+.hermes-visual-benchmark__bar--market i::after { background: linear-gradient(180deg, rgba(98,160,123,.94), rgba(44,92,61,.92)); }
+.hermes-visual-benchmark__bar--security i::after { background: linear-gradient(180deg, rgba(145,100,96,.94), rgba(92,50,48,.92)); }
+.hermes-meeting__arena {
+  position: relative;
+  min-height: 860px;
+  padding: 8px 0 0;
+}
+.hermes-meeting__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.hermes-meeting__core {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 290px;
+  height: 290px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(194, 216, 114, 0.34) 0%, rgba(30, 89, 70, 0.24) 38%, rgba(6, 19, 16, 0) 72%);
+  box-shadow: 0 0 120px rgba(121, 172, 95, 0.18);
+  z-index: 1;
+  pointer-events: none;
+}
+.hermes-meeting__core::before {
+  content: '';
+  position: absolute;
+  inset: 13%;
+  border-radius: inherit;
+  border: 1px solid rgba(184, 240, 170, 0.10);
+  box-shadow: inset 0 0 46px rgba(184, 240, 170, 0.08);
+}
+.hermes-meeting__agent {
+  position: absolute;
+  z-index: 4;
+  width: 230px;
+}
+.hermes-meeting__agent[data-pos='top-left'] { left: 3%; top: 2%; }
+.hermes-meeting__agent[data-pos='top-right'] { right: 4%; top: 2%; }
+.hermes-meeting__agent[data-pos='left-mid'] { left: 0.2%; top: 31%; }
+.hermes-meeting__agent[data-pos='right-mid'] { right: 0.4%; top: 31%; }
+.hermes-meeting__agent[data-pos='bottom-left'] { left: 8%; bottom: 17%; }
+.hermes-meeting__agent[data-pos='bottom-right'] { right: 7%; bottom: 18%; }
+.hermes-meeting__agent-button {
+  position: relative;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  text-align: center;
+  color: inherit;
+  cursor: default;
+}
+.hermes-meeting__rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 214, 90, 0.18);
+  background: rgba(8, 18, 16, 0.92);
+  color: #ffd868;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 14px 24px rgba(0,0,0,0.22);
+}
+.hermes-meeting__avatar-wrap {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,0.1), rgba(7, 16, 14, 0.95) 70%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), inset 0 0 28px rgba(255,255,255,0.05), 0 0 24px var(--agent-glow, rgba(96, 255, 204, 0.18));
+}
+.hermes-meeting__avatar-wrap::before,
+.hermes-meeting__avatar-wrap::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hermes-meeting__avatar-wrap::before {
+  inset: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hermes-meeting__avatar-wrap::after {
+  inset: -8px;
+  border: 1px solid var(--agent-glow, rgba(96, 255, 204, 0.18));
+  opacity: 0.5;
+  animation: hermesAgentHalo 7s linear infinite;
+}
+@keyframes hermesAgentHalo {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.hermes-meeting__avatar {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+  animation: hermesAgentFloat 6s ease-in-out infinite;
+}
+@keyframes hermesAgentFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-7px) scale(1.03); }
+}
+.hermes-meeting__name {
+  display: block;
+  color: #f7fff9;
+  font-size: 22px;
+  line-height: 1.05;
+  font-weight: 900;
+}
+.hermes-meeting__label {
+  display: block;
+  margin-top: 6px;
+  color: #a4c8ba;
+  font-size: 16px;
+}
+.hermes-meeting__vote {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(7, 17, 14, 0.85);
+  border: 1px solid rgba(255,255,255,0.05);
+  color: #d7f8ea;
+  font-size: 12px;
+}
+.hermes-meeting__vote strong { color: #ffea9b; font-size: 13px; }
+.hermes-meeting__bubble {
+  position: absolute;
+  max-width: 290px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(84, 238, 182, 0.15);
+  background: linear-gradient(180deg, rgba(9, 24, 20, 0.94), rgba(5, 14, 11, 0.98));
+  box-shadow: 0 26px 54px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.03);
+  color: #eafff5;
+  z-index: 5;
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.hermes-meeting__bubble.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.hermes-meeting__bubble::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(180deg, rgba(8, 19, 16, 0.96), rgba(6, 14, 12, 0.98));
+  border-right: 1px solid rgba(84, 238, 182, 0.14);
+  border-bottom: 1px solid rgba(84, 238, 182, 0.14);
+  transform: rotate(45deg);
+}
+.hermes-meeting__agent[data-pos='top-left'] .hermes-meeting__bubble,
+.hermes-meeting__agent[data-pos='left-mid'] .hermes-meeting__bubble,
+.hermes-meeting__agent[data-pos='bottom-left'] .hermes-meeting__bubble {
+  left: 100%;
+  top: 50%;
+  margin-left: 18px;
+  transform-origin: left center;
+}
+.hermes-meeting__agent[data-pos='top-left'] .hermes-meeting__bubble::after,
+.hermes-meeting__agent[data-pos='left-mid'] .hermes-meeting__bubble::after,
+.hermes-meeting__agent[data-pos='bottom-left'] .hermes-meeting__bubble::after {
+  left: -9px;
+  top: 50%;
+  margin-top: -8px;
+}
+.hermes-meeting__agent[data-pos='top-right'] .hermes-meeting__bubble,
+.hermes-meeting__agent[data-pos='right-mid'] .hermes-meeting__bubble,
+.hermes-meeting__agent[data-pos='bottom-right'] .hermes-meeting__bubble {
+  right: 100%;
+  top: 50%;
+  margin-right: 18px;
+  transform-origin: right center;
+}
+.hermes-meeting__agent[data-pos='top-right'] .hermes-meeting__bubble::after,
+.hermes-meeting__agent[data-pos='right-mid'] .hermes-meeting__bubble::after,
+.hermes-meeting__agent[data-pos='bottom-right'] .hermes-meeting__bubble::after {
+  right: -9px;
+  top: 50%;
+  margin-top: -8px;
+}
+.hermes-meeting__bubble-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(89, 235, 188, 0.12);
+  color: #cffff0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hermes-meeting__bubble-kicker::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #64ffd6;
+  box-shadow: 0 0 0 4px rgba(100,255,214,0.12), 0 0 14px rgba(100,255,214,0.45);
+}
+.hermes-meeting__bubble strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #ffffff;
+}
+.hermes-meeting__bubble p,
+.hermes-meeting__bubble small {
+  margin: 0;
+  color: #c6e4d6;
+  line-height: 1.5;
+}
+.hermes-meeting__hermes {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  transform: translateX(-50%);
+  z-index: 8;
+  width: min(460px, 70vw);
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+.hermes-meeting__hermes-visual {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: grid;
+  place-items: center;
+}
+.hermes-meeting__hermes-visual::before,
+.hermes-meeting__hermes-visual::after {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 205, 86, 0.14);
+  animation: hermesCoreSpin 12s linear infinite;
+}
+.hermes-meeting__hermes-visual::after {
+  inset: -8px;
+  border-style: dashed;
+  border-color: rgba(255, 205, 86, 0.18);
+  animation-direction: reverse;
+  animation-duration: 16s;
+}
+@keyframes hermesCoreSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.hermes-meeting__hermes-glow {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 205, 86, 0.24) 0%, rgba(255, 205, 86, 0.10) 38%, rgba(255, 205, 86, 0) 72%);
+  filter: blur(6px);
+  animation: hermesConsensusPulse 2.8s ease-in-out infinite;
+}
+@keyframes hermesConsensusPulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+.hermes-meeting__hermes-image {
+  position: relative;
+  z-index: 2;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,0.32)) drop-shadow(0 0 22px rgba(255, 205, 86, 0.28));
+  animation: hermesHeroFloat 5.8s ease-in-out infinite;
+}
+@keyframes hermesHeroFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.03); }
+}
+.hermes-meeting__decision {
+  position: relative;
+  z-index: 9;
+  width: min(100%, 420px);
+  padding: 16px 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(19, 18, 10, 0.94), rgba(11, 11, 7, 0.98));
+  border: 1px solid rgba(255, 205, 86, 0.14);
+  box-shadow: 0 22px 44px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.04);
+  text-align: center;
+}
+.hermes-meeting__decision-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 205, 86, 0.10);
+  color: #ffe39a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hermes-meeting__decision-title {
+  margin: 0 0 6px;
+  color: #fff8de;
+  font-size: 18px;
+  font-weight: 900;
+}
+.hermes-meeting__decision-copy {
+  margin: 0;
+  color: #e7ddba;
+  line-height: 1.55;
+}
+.hermes-meeting__decision-meta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.hermes-meeting__decision-pill {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.05);
+  color: #ffe39a;
+  font-size: 11px;
+}
+.hermes-meeting__consensus-pulse {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 205, 86, 0.24) 0%, rgba(255, 205, 86, 0.12) 34%, rgba(255, 205, 86, 0) 72%);
+  z-index: 2;
+  pointer-events: none;
+  animation: hermesConsensusPulse 2.7s ease-in-out infinite;
+}
+.hermes-meeting__consensus-badge {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+  padding: 16px 18px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(14, 22, 18, 0.92), rgba(8, 14, 12, 0.98));
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 22px 40px rgba(0,0,0,0.30), 0 0 22px rgba(100,255,214,0.10);
+  text-align: center;
+}
+.hermes-meeting__consensus-badge span {
+  color: #9ee1c6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hermes-meeting__consensus-badge strong {
+  color: #fff9df;
+  font-size: 30px;
+  line-height: 1;
+}
+.hermes-meeting__consensus-badge small {
+  color: #b4d5c7;
+  font-size: 12px;
+}
+.hermes-meeting__ticker {
+  position: absolute;
+  left: 50%;
+  bottom: 31%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(78%, 760px);
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: rgba(6, 16, 13, 0.82);
+  border: 1px solid rgba(90, 247, 190, 0.12);
+  color: #dff8ee;
+  font-size: 13px;
+  box-shadow: 0 20px 34px rgba(0,0,0,0.26);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.hermes-meeting__ticker::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #63ffd5;
+  box-shadow: 0 0 0 4px rgba(99,255,213,0.12), 0 0 12px rgba(99,255,213,0.52);
+}
+.hermes-meeting__loading,
+.hermes-meeting__error {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(9, 23, 18, 0.9);
+  border: 1px solid rgba(84, 238, 182, 0.14);
+  color: #d4efe2;
+}
+@media (max-width: 1180px) {
+  .hermes-meeting__hud { grid-template-columns: 1fr; }
+  .hermes-meeting__arena { min-height: 980px; }
+  .hermes-meeting__agent { width: 210px; }
+  .hermes-meeting__agent[data-pos='left-mid'] { left: 2%; }
+  .hermes-meeting__agent[data-pos='right-mid'] { right: 2%; }
+}
+@media (max-width: 980px) {
+  .hermes-meeting__benchmarks { max-width: none; justify-self: stretch; align-self: stretch; }
+  .hermes-visual-benchmark__bars { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .hermes-visual-benchmark__bar i { max-width: 46px; height: 120px; }
+  .hermes-meeting__arena { min-height: 1050px; }
+  .hermes-meeting__agent[data-pos='top-left'] { left: 1%; }
+  .hermes-meeting__agent[data-pos='top-right'] { right: 1%; }
+  .hermes-meeting__bubble { max-width: 230px; }
+}
+@media (max-width: 767px) {
+  .hermes-ranking--enhanced {
+    padding: 18px;
+  }
+  .hermes-meeting__hud,
+  .hermes-meeting__arena {
+    display: none;
+  }
+  .hermes-ranking--enhanced::before,
+  .hermes-ranking--enhanced::after {
+    display: none;
+  }
+  .hermes-meeting__loading,
+  .hermes-meeting__error {
+    font-size: 14px;
+  }
+}
+
+
+.hermes-meeting__mobile-cta {
+  display: none;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(10, 25, 21, 0.96), rgba(6, 15, 13, 0.98));
+  border: 1px solid rgba(84, 238, 182, 0.12);
+  box-shadow: 0 18px 42px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.hermes-meeting__mobile-head {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.hermes-meeting__mobile-icon-wrap {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 213, 107, 0.22), rgba(255, 213, 107, 0.04) 62%, rgba(255, 213, 107, 0) 80%);
+  box-shadow: 0 0 0 1px rgba(255, 213, 107, 0.10) inset, 0 0 24px rgba(255, 213, 107, 0.14);
+}
+.hermes-meeting__mobile-icon {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(255, 213, 107, 0.24));
+  animation: hermesConsensusPulse 2.8s ease-in-out infinite;
+}
+.hermes-meeting__mobile-copy strong {
+  display: block;
+  color: #fff8de;
+  font-size: 18px;
+  line-height: 1.2;
+}
+.hermes-meeting__mobile-copy p {
+  margin: 6px 0 0;
+  color: #c6e4d6;
+  line-height: 1.45;
+  font-size: 14px;
+}
+.hermes-meeting__mobile-kicker {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #9ee1c6;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hermes-meeting__mobile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+.hermes-meeting__mobile-button {
+  appearance: none;
+  border: 1px solid rgba(255, 213, 107, 0.20);
+  background: linear-gradient(180deg, rgba(26, 23, 12, 0.96), rgba(12, 12, 8, 0.98));
+  color: #fff2c4;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.20), 0 0 18px rgba(255, 213, 107, 0.08);
+}
+.hermes-meeting__mobile-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.05);
+  color: #dff8ee;
+  font-size: 12px;
+}
+.hermes-meeting__mobile-sheet {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.hermes-meeting__mobile-sheet-head strong {
+  display: block;
+  color: #fff8de;
+  font-size: 16px;
+}
+.hermes-meeting__mobile-sheet-head small {
+  display: block;
+  margin-top: 4px;
+  color: #b4d5c7;
+}
+.hermes-meeting__mobile-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.hermes-meeting__mobile-card {
+  display: grid;
+  grid-template-columns: auto 50px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.hermes-meeting__mobile-rank {
+  min-width: 42px;
+  padding: 7px 8px;
+  border-radius: 999px;
+  background: rgba(255, 213, 107, 0.10);
+  color: #ffe39a;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+.hermes-meeting__mobile-card img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.20));
+}
+.hermes-meeting__mobile-agent-copy strong {
+  display: block;
+  color: #ffffff;
+  font-size: 15px;
+}
+.hermes-meeting__mobile-agent-copy span,
+.hermes-meeting__mobile-agent-copy small {
+  display: block;
+  margin-top: 2px;
+  color: #c6e4d6;
+}
+@media (max-width: 767px) {
+  .hermes-meeting__mobile-cta {
+    display: block;
+  }
+}
+
+.hermes-meeting__decision-board {
+  position: absolute;
+  left: 50%;
+  top: 2%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: min(560px, 52vw);
+  padding: 18px 18px 16px;
+  border-radius: 28px;
+  border: 1px solid rgba(109, 255, 196, 0.16);
+  background: linear-gradient(180deg, rgba(7, 21, 18, 0.96), rgba(4, 13, 11, 0.98));
+  box-shadow: 0 26px 60px rgba(0,0,0,0.34), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+}
+.hermes-meeting__decision-board::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(133, 255, 208, 0.12), rgba(133, 255, 208, 0) 55%);
+  pointer-events: none;
+}
+.hermes-meeting__decision-board-head {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.hermes-meeting__decision-board-head strong {
+  color: #f5fff9;
+  font-size: 18px;
+  line-height: 1.1;
+}
+.hermes-meeting__decision-board-kicker {
+  display: inline-flex;
+  justify-self: start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 214, 90, 0.20);
+  background: rgba(255, 214, 90, 0.08);
+  color: #ffe08a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.hermes-meeting__decision-board-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.hermes-meeting__decision-cell {
+  padding: 12px 13px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hermes-meeting__decision-cell span {
+  display: block;
+  margin-bottom: 5px;
+  color: #92c9b3;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.hermes-meeting__decision-cell strong {
+  color: #f2fff7;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.hermes-meeting__decision-stream {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.hermes-meeting__stream-line {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 9px 10px;
+  border-radius: 16px;
+  background: rgba(7, 28, 22, 0.78);
+  border: 1px solid rgba(95, 200, 155, 0.10);
+}
+.hermes-meeting__stream-line span {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(100,255,214,0.08);
+  color: #bfffe7;
+  font-weight: 800;
+  font-size: 11px;
+}
+.hermes-meeting__stream-line p {
+  margin: 0;
+  color: #d8f5e8;
+  line-height: 1.5;
+}
+.hermes-meeting__agent.is-reading {
+  z-index: 12;
+}
+.hermes-meeting__agent.is-reading .hermes-meeting__avatar-wrap {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), inset 0 0 28px rgba(255,255,255,0.05), 0 0 32px var(--agent-glow, rgba(96, 255, 204, 0.18)), 0 0 64px rgba(255,255,255,0.05);
+}
+.hermes-meeting__bubble.is-priority {
+  max-width: 340px;
+  opacity: 1;
+  transform: translateY(0) scale(1.03);
+  box-shadow: 0 32px 70px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.04), 0 0 28px rgba(100,255,214,0.12);
+}
+.hermes-meeting__bubble p {
+  min-height: 78px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f4fff8;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.22);
+}
+.hermes-meeting__bubble small {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #b8decd;
+}
+@media (max-width: 1180px) {
+  .hermes-meeting__decision-board {
+    width: min(500px, 60vw);
+  }
+}
+@media (max-width: 980px) {
+  .hermes-meeting__decision-board {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    margin: 0 auto 18px;
+  }
+  .hermes-meeting__arena {
+    padding-top: 0;
+  }
+}
+
+
+/* V8.8 FIX FINAL: Hermes acima do quadro central */
+.hermes-meeting__arena {
+  isolation: isolate;
+}
+.hermes-meeting__core,
+.hermes-meeting__consensus-pulse {
+  z-index: 2;
+}
+.hermes-meeting__consensus-badge {
+  z-index: 4;
+}
+.hermes-meeting__decision-board::before {
+  z-index: 0;
+}
+.hermes-meeting__hermes-visual,
+.hermes-meeting__hermes-image,
+.hermes-meeting__hermes-glow {
+  position: relative;
+  z-index: 9;
+}
+@media (max-width: 980px) {
+  .hermes-meeting__decision-board {
+    z-index: 2;
+  }
+  .hermes-meeting__hermes {
+    z-index: 8;
+  }
+}
+
+
+/* V9.0 ABSOLUTO — layout estável da sala Hermes */
+.hermes-meeting__arena {
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 1240px;
+  padding-top: 0;
+}
+.hermes-meeting__decision-board {
+  top: 42px;
+  z-index: 7;
+  width: min(620px, 56vw);
+}
+.hermes-meeting__consensus-badge {
+  top: 49%;
+  z-index: 4;
+}
+.hermes-meeting__ticker {
+  bottom: 29%;
+  z-index: 5;
+}
+.hermes-meeting__hermes {
+  bottom: 5%;
+  z-index: 8;
+  width: min(520px, 78vw);
+}
+.hermes-meeting__decision {
+  width: min(100%, 460px);
+}
+.hermes-meeting__agent[data-pos='top-left'] { left: 6%; top: 3%; }
+.hermes-meeting__agent[data-pos='top-right'] { right: 6%; top: 3%; }
+.hermes-meeting__agent[data-pos='left-mid'] { left: 2%; top: 31%; }
+.hermes-meeting__agent[data-pos='right-mid'] { right: 2%; top: 31%; }
+.hermes-meeting__agent[data-pos='bottom-left'] { left: 10%; bottom: 19%; }
+.hermes-meeting__agent[data-pos='bottom-right'] { right: 10%; bottom: 19%; }
+
+@media (max-width: 1180px) {
+  .hermes-meeting__arena { min-height: 1320px; }
+  .hermes-meeting__decision-board { width: min(560px, 64vw); }
+  .hermes-meeting__agent[data-pos='top-left'] { left: 3%; }
+  .hermes-meeting__agent[data-pos='top-right'] { right: 3%; }
+  .hermes-meeting__agent[data-pos='bottom-left'] { left: 6%; }
+  .hermes-meeting__agent[data-pos='bottom-right'] { right: 6%; }
+}
+
+@media (max-width: 980px) {
+  .hermes-meeting__arena {
+    min-height: 1120px;
+    display: grid;
+    align-content: start;
+    gap: 18px;
+  }
+  .hermes-meeting__decision-board {
+    position: relative;
+    inset: auto;
+    transform: none;
+    width: 100%;
+    margin: 0 auto;
+    order: 1;
+  }
+  .hermes-meeting__consensus-badge {
+    top: 38%;
+  }
+  .hermes-meeting__ticker {
+    bottom: 34%;
+    max-width: min(88%, 760px);
+  }
+  .hermes-meeting__hermes {
+    bottom: 3%;
+    width: min(460px, 90vw);
+  }
+}

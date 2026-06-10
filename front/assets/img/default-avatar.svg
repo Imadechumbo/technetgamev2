@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">Avatar padrão TechNetGame</title>
+<desc id="desc">Avatar fallback circular para creators</desc>
+<defs>
+  <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#123528"/>
+    <stop offset="100%" stop-color="#07110d"/>
+  </linearGradient>
+</defs>
+<circle cx="128" cy="128" r="124" fill="url(#a)" stroke="#2dd881" stroke-opacity="0.35" stroke-width="8"/>
+<circle cx="128" cy="98" r="42" fill="#2dd881" fill-opacity="0.82"/>
+<path d="M58 202c14-31 40-49 70-49s56 18 70 49" fill="#2dd881" fill-opacity="0.82"/>
+</svg>

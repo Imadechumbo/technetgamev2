@@ -1,0 +1,25 @@
+
+.benchmark-top{display:flex;gap:20px;justify-content:center}
+.bench-col{display:flex;flex-direction:column;align-items:center}
+.bar{width:6px;height:80px;background:#111;position:relative}
+.value{font-size:12px}
+.label{font-size:10px}
+.arena-board{display:flex;gap:30px;padding:40px}
+.row{display:flex;gap:10px;margin-bottom:10px}
+.row .bar{flex:1;height:6px}
+.fill{height:100%;width:50%;background:linear-gradient(90deg,#00ffc3,#ffd700)}
+.heatmap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.heatmap div{background:#111;padding:10px;text-align:center}
+/* cards de destaque */
+.featured-card img {
+  width: 100%;
+  height: 180px;        /* controla altura */
+  object-fit: cover;    /* corta sem distorcer */
+  border-radius: 8px;
+}
+
+/* opcional: hover leve */
+.featured-card img:hover {
+  transform: scale(1.02);
+  transition: 0.2s ease;
+}

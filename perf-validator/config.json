@@ -1,0 +1,25 @@
+{
+  "targets": [
+    {
+      "name": "home",
+      "url": "https://technetgame.com.br/"
+    },
+    {
+      "name": "technet-ai",
+      "url": "https://technetgame.com.br/technet-ai"
+    },
+    {
+      "name": "relatorios",
+      "url": "https://technetgame.com.br/relatorios/"
+    }
+  ],
+  "thresholds": {
+    "domcontentloaded_ms": 5000,
+    "load_ms": 8000,
+    "request_count_warn": 250,
+    "request_count_fail": 400,
+    "lcp_ms_hard_fail": 2500,
+    "cls_hard_fail": 0.1,
+    "vitals_settle_ms": 2000
+  }
+}

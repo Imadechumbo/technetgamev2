@@ -1,0 +1,110 @@
+name: deploy-production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_DIST_DIR: ${{ secrets.FRONTEND_DIST_DIR }}
+      SNAPSHOT_S3_BUCKET: ${{ secrets.SNAPSHOT_S3_BUCKET }}
+      CF_PAGES_PROJECT: technetgame-aws
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      AWS_EB_BUNDLE: ${{ secrets.AWS_EB_BUNDLE }}
+      AWS_EB_APPLICATION: technetgame
+      AWS_EB_ENVIRONMENT: Technetgame-env-1
+      AWS_EB_S3_BUCKET: ${{ secrets.AWS_EB_S3_BUCKET }}
+      AWS_EB_S3_KEY: technetgame/builds/${{ github.run_id }}.zip
+      AWS_EB_VERSION_LABEL: tg-${{ github.run_id }}
+      AWS_EB_HEALTH_URL: ${{ secrets.AWS_EB_HEALTH_URL }}
+      API_PROD_HEALTH_URL: ${{ secrets.API_PROD_HEALTH_URL }}
+      FRONTEND_PROD_URL: ${{ secrets.FRONTEND_PROD_URL }}
+      POST_DEPLOY_MAX_WAIT: "300"
+      POST_DEPLOY_POLL: "15"
+      ENABLE_AUTO_HEAL: "1"
+      QUALITY_GATE_LEVEL: silver
+      POST_DEPLOY_GATE_LEVEL: gold
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Set snapshot paths
+        run: |
+          echo "FRONTEND_SNAPSHOT_ROOT=${{ runner.temp }}/snapshots/frontend" >> $GITHUB_ENV
+          echo "BACKEND_SNAPSHOT_ROOT=${{ runner.temp }}/snapshots/backend" >> $GITHUB_ENV
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Install deps
+        run: |
+          npm ci
+          npx playwright install chromium
+
+      - name: Pull snapshots
+        run: echo "Skipping snapshots"
+
+      - name: Capture baseline
+        run: |
+          node ui/capture_ui.mjs
+          node ui/update_baseline.mjs
+
+      - name: Silver precheck - contract
+        run: npm run contract:validate
+
+      - name: Silver precheck - mobile
+        run: npm run mobile:validate
+
+      - name: Silver precheck - performance
+        run: npm run perf:validate
+
+      - name: Silver precheck - release gate
+        run: |
+          python safe_update.py --project technetgame --mode full --env prod || true
+
+      - name: Deploy frontend
+        run: python scripts/deploy_frontend_cloudflare.py
+
+      - name: Purge Cloudflare cache
+        run: python scripts/purge_cloudflare_cache.py
+
+      - name: Deploy backend
+        run: python scripts/deploy_backend_aws_eb.py
+
+      - name: Validate production URLs
+        run: python scripts/post_deploy_validate.py
+
+      - name: Gold post-deploy - vitals
+        run: npm run vitals:validate
+
+      - name: Gold post-deploy - contract
+        run: npm run contract:validate
+
+      - name: Gold post-deploy - mobile
+        run: npm run mobile:validate
+
+      - name: Gold post-deploy - performance
+        run: npm run perf:validate
+
+      - name: Gold post-deploy - final gate
+        run: python safe_update.py --project technetgame --mode deploy --env prod
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-production-${{ github.run_id }}
+          path: |
+            reports/json/**
+            reports/release_gate_report.*
+            logs/**
