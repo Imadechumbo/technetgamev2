@@ -3206,14 +3206,12 @@ a.btn.btn-secondary {
 .article-content h2 { margin-top: 34px; margin-bottom: 14px; }
 .article-content p, .article-content li { line-height: 1.75; }
 
-/* Fix: light-bg tbody rows get near-white text from --text (#e8f4ee) → force dark.
-   Rows WITHOUT explicit background stay on dark body → keep near-white (default). */
-tr[style*="background:#f9f9f9"] td,
-tr[style*="background:#f9f9f9"] th,
-tr[style*="background:#fff"] td,
-tr[style*="background:#fff"] th,
-tr[style*="background:white"] td,
-tr[style*="background:white"] th { color: #111 !important; }
+/* Fix: .table-wrap applies background:#f9f9f9 via CSS on even rows (not inline style),
+   so attribute selectors never match. nth-child targets rows by position. */
+.article-content table tbody tr:nth-child(even) td,
+.article-content table tbody tr:nth-child(even) th {
+  color: #111 !important;
+}
 .seo-links-list { margin: 12px 0 0; }
 .seo-links-list a { text-decoration: none; }
 
