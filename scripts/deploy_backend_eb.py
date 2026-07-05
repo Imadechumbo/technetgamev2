@@ -37,12 +37,15 @@ def wait_for_environment(environment_name: str, region: str, timeout: int = 900,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--bundle', default=os.getenv('BACKEND_BUNDLE_PATH', 'dist/backend-release.zip'))
+    # AWS_EB_BUNDLE/AWS_EB_S3_BUCKET/AWS_EB_VERSION_LABEL: nomes usados pelo
+    # deploy-production.yml (workflow mais antigo) -- consolidados aqui em vez
+    # do wrapper deploy_backend_aws_eb.py (removido, ver CLAUDE.md).
+    ap.add_argument('--bundle', default=os.getenv('BACKEND_BUNDLE_PATH') or os.getenv('AWS_EB_BUNDLE', 'dist/backend-release.zip'))
     ap.add_argument('--application', default=os.getenv('AWS_EB_APPLICATION'))
     ap.add_argument('--environment', default=os.getenv('AWS_EB_ENVIRONMENT'))
-    ap.add_argument('--bucket', default=os.getenv('AWS_S3_DEPLOY_BUCKET'))
+    ap.add_argument('--bucket', default=os.getenv('AWS_S3_DEPLOY_BUCKET') or os.getenv('AWS_EB_S3_BUCKET'))
     ap.add_argument('--region', default=os.getenv('AWS_REGION', 'us-east-1'))
-    ap.add_argument('--version-label', default=os.getenv('BACKEND_VERSION_LABEL'))
+    ap.add_argument('--version-label', default=os.getenv('BACKEND_VERSION_LABEL') or os.getenv('AWS_EB_VERSION_LABEL'))
     ap.add_argument('--timeout', type=int, default=int(os.getenv('AWS_EB_WAIT_TIMEOUT', '1200')))
     args = ap.parse_args()
 

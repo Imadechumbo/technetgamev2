@@ -79,7 +79,7 @@ jobs:
         run: python scripts/purge_cloudflare_cache.py
 
       - name: Deploy backend
-        run: python scripts/deploy_backend_aws_eb.py
+        run: python scripts/deploy_backend_eb.py
 
       - name: Validate production URLs
         run: python scripts/post_deploy_validate.py
