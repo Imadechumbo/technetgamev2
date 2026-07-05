@@ -37,10 +37,10 @@ const initVitals = () => {
   } catch {}
 
   window.addEventListener('error', (event) => {
-    window.__tngVitals.jsErrors.push(String(event.message || event.error || 'unknown_error'));
+    window.__tngVitals.jsErrors.push(String(event.error?.stack || event.message || 'unknown_error'));
   });
   window.addEventListener('unhandledrejection', (event) => {
-    window.__tngVitals.jsErrors.push(String(event.reason || 'unhandled_rejection'));
+    window.__tngVitals.jsErrors.push(String(event.reason?.stack || event.reason || 'unhandled_rejection'));
   });
 };
 
@@ -53,7 +53,7 @@ for (const target of cfg.targets) {
   page.removeAllListeners('pageerror');
   page.removeAllListeners('console');
   page.on('request', () => requests++);
-  page.on('pageerror', (err) => runtimeErrors.push(String(err.message || err)));
+  page.on('pageerror', (err) => runtimeErrors.push(String(err.stack || err.message || err)));
   page.on('console', (msg) => {
     if (msg.type() === 'error') consoleErrors.push(msg.text());
   });
