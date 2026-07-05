@@ -70,3 +70,21 @@ Implementado: fallback de env var nativo em `deploy_backend_eb.py` (`BACKEND_BUN
 Usuário confirmou opção 1: migrar as 12 entradas (6 `README_V2_9..14_*.txt` + 6 `docs/15..20-v2-*.md`, mesmo conteúdo duplicado em dois formatos) pro `CLAUDE_HISTORY.md` como seções cronológicas (ver `V2.9` a `V2.14` acima), e apagar os 12 originais depois de confirmação explícita da migração.
 
 Processo: (1) conteúdo lido na íntegra dos 12 arquivos, sintetizado (não copiado literal) em 6 seções de ~4 linhas cada; (2) resumo mostrado ao usuário antes de apagar qualquer coisa; (3) checagem exaustiva via Grep — só `CLAUDE.md`/`CLAUDE_HISTORY.md` (próprios) mencionavam os nomes desses 12 arquivos, nenhum workflow/script/link interno referenciava; (4) usuário confirmou remoção; (5) `git rm` nos 12 arquivos, nota do topo deste arquivo atualizada de "não migrado" pra "migrado".
+
+---
+
+## 2026-07-05 — Fix real: `validate-prod.yml` falhando 100% desde 2026-07-02 (ReferenceError em `feeds.js`)
+
+**Sintoma:** o workflow agendado `validate-prod.yml` (roda a cada 30min) falhava em toda execução desde pelo menos 2026-07-02, sempre no gate `npm run vitals:validate`. Não era problema de performance — LCP/CLS/load de todas as 3 páginas testadas (home/technet-ai/relatorios) estavam bem dentro dos thresholds. O **JS Runtime Guard** (entregue no V2.12, ver seção acima) trata qualquer erro de JS em runtime como FAIL automático, independente das métricas — e havia um erro real disparando em toda carga de página: `ReferenceError: source is not defined`.
+
+**Diagnóstico em duas etapas, porque o relatório não tinha stack trace:**
+1. `perf-validator/run_perf_validation.mjs` só gravava `err.message` (nunca `err.stack`) nos 3 pontos de captura de erro (`pageerror`, `window.error`, `unhandledrejection`) — por isso nenhuma sessão anterior conseguiu apontar o arquivo/linha exatos. Buscas no código-fonte do repo não acharam nenhum `source` solto de forma óbvia — o próprio texto do erro era idêntico em páginas que não compartilhavam nenhum script entre si, o que por um tempo pareceu apontar pra algo injetado fora do repo (Cloudflare Zaraz/Rocket Loader). Essa hipótese não foi confirmada nem descartada por falta de acesso de rede no ambiente local (`curl` sem saída de rede, `WebFetch` bloqueado com 403 pela Cloudflare).
+2. Fix cirúrgico só na captura: `err.message` → `err.stack || err.message` (commit `b4d5825`). Publicado e disparado manualmente via `gh workflow run validate-prod.yml` (run `28728105960`, sem esperar o cron) — o relatório seguinte trouxe o stack trace real: `at Object.renderFeedBlock (feeds.js:675:101)`, chamado por `at Object.init (feeds.js:717:24)`.
+
+**Causa raiz real, achada em segundos com o stack trace:** `front/assets/js/feeds.js:675` — dentro de `renderFeedBlock`, um `dispatchEvent` de telemetria usava os nomes de variável antigos `api`/`source`, de antes de uma renomeação que não foi propagada ali (as variáveis reais na função são `apiUrl`/`sourceName`, declaradas 6 linhas acima; a função irmã `hydrateGrid`, que ainda usa os nomes antigos porque lá eles *são* os nomes corretos, tem uma linha quase idêntica — provável origem do copy-paste). `api` não quebrava por coincidência: existe um `window.api` global definido em `runtime-config.js`. `source` não tinha esse acaso e lançava `ReferenceError` toda vez que a função rodava — em toda página, porque `renderFeedBlock`/`init` roda globalmente, não só nas páginas que declaram `<script src="feeds.js">` no HTML.
+
+**Fix:** `{ api, label: source }` → `{ api: apiUrl, label: sourceName }` (commit `d408983`, 1 linha).
+
+**Deploy + confirmação real:** push → `gh workflow run release-auto-rollback.yml -f release_track=front-only` (run `28728235959`, sucesso) → `gh workflow run validate-prod.yml` de novo pra forçar confirmação sem esperar o cron (run `28728328273`) → relatório: **`status: PASS` nas 3 páginas, campo `runtime_errors`/`window_errors` nem aparece mais** (antes presente em toda entrada). Primeiro PASS desde pelo menos 2026-07-02.
+
+**Lição registrada:** capturar `err.stack` em vez de só `err.message` em qualquer instrumentação de erro de runtime economiza — nesse caso específico — a diferença entre "hipótese não confirmável sobre script de terceiro" e "achado em segundos, arquivo e linha exatos". Vale como padrão pra qualquer captura de erro futura neste repo.
