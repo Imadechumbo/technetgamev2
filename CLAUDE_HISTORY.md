@@ -29,8 +29,14 @@ Ver conteúdo do `CLAUDE.md` — stack, rotas reais varridas em `backend/src/app
 
 ---
 
-## Fase B — pendente (limpeza de .gitignore/tracking)
+## Fase B — FECHADA (2026-07-04) — limpeza de .gitignore/tracking
 
-## Fase C — pendente (consolidação dos scripts de deploy, aguardando confirmação do usuário)
+`.gitignore` ganhou `node_modules/` e `__pycache__/` (encoding confirmado ASCII sem BOM antes e depois da edição — não é o bug do vision-core). `git rm -r --cached` em 666 arquivos de `node_modules/` + 10 `.pyc` de `__pycache__/` — nada apagado do disco, só parou de ser versionado. Confirmado antes do commit: arquivos continuam presentes fisicamente (`ls node_modules` funcionando), `git status` só mostrava as 677 remoções + o `.gitignore` modificado, nada mais tocado.
+
+## Fase C — FECHADA (2026-07-04) — consolidação dos scripts de deploy
+
+Antes de mexer no workflow ativo, investigação encontrou que `deploy-production.yml` (chama o wrapper) e `release-auto-rollback.yml` (chama o script real, é o pipeline V2.14 documentado) não são equivalentes — o segundo é o canônico atual, o primeiro é mais antigo e não documentado em nenhum README numerado. Usuário confirmou plano original mesmo assim: consolidar por baixo sem mexer no trigger/lógica de nenhum workflow.
+
+Implementado: fallback de env var nativo em `deploy_backend_eb.py` (`BACKEND_BUNDLE_PATH or AWS_EB_BUNDLE`, mesmo padrão pra bucket/version-label), `deploy_backend_aws_eb.py` apagado, `deploy-production.yml` atualizado pra chamar o script real. Testado localmente com os dois conjuntos de nomes de env var (sem deploy real) — ambos resolvem corretamente.
 
 ## Fase D — pendente (unificação da documentação numerada, aguardando decisão do usuário)
