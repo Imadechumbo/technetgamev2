@@ -75,9 +75,9 @@ Testado localmente sem deploy real: os dois conjuntos de nomes resolvem corretam
 
 ---
 
-## DOCUMENTAÇÃO NUMERADA (Fase D, ainda não decidida)
+## DOCUMENTAÇÃO NUMERADA — UNIFICADA (Fase D, fechada 2026-07-04)
 
-Duas séries paralelas cobrindo os **mesmos 6 releases** (V2.9 a V2.14), ambas adicionadas no mesmo dia (2026-04-18): raiz `README_V2_9..14_*.txt` (texto plano) e `docs/15..20-v2-*.md` (markdown com headers). Comparação de um par confirmou conteúdo equivalente, só reformatado — duplicação real de manutenção. Nenhuma das 12 entradas tem pendência aberta (100% histórico fechado). Decisão de qual série manter (ou migrar as duas pra dentro de `CLAUDE_HISTORY.md`) ainda não foi tomada — ver `CLAUDE_HISTORY.md` pro registro de quando isso for decidido.
+As duas séries paralelas que cobriam os mesmos 6 releases (V2.9-V2.14) — raiz `README_V2_9..14_*.txt` + `docs/15..20-v2-*.md` — foram migradas (sintetizadas, não copiadas literal) pro `CLAUDE_HISTORY.md` como seções `V2.9` a `V2.14`, e os 12 arquivos originais foram apagados. `CLAUDE_HISTORY.md` é agora a única fonte de verdade desse período histórico.
 
 ---
 
