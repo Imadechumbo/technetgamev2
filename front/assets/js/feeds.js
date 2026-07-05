@@ -672,7 +672,7 @@ window.TechNetGameFeeds = {
 
         grid.classList.add('news-wall-grid');
         if (status) status.textContent = 'Carregando...';
-        document.dispatchEvent(new CustomEvent('technet:feed-grid-loading', { detail: { api, label: source } }));
+        document.dispatchEvent(new CustomEvent('technet:feed-grid-loading', { detail: { api: apiUrl, label: sourceName } }));
 
         try {
             const payload = await this.fetchJson(apiUrl);
