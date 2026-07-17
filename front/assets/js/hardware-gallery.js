@@ -8,6 +8,10 @@
 
   const LOCAL_IMAGE_RULES = [
     {
+      match: ['lets piu', 'battle royale realidade aumentada'],
+      image: 'assets/img/article-lets-piu.jpg'
+    },
+    {
       match: ['rtx pro 6000', 'nvidia rtx pro 6000', 'blackwell workstation', 'rtx pro 6000 blackwell'],
       image: 'assets/img/article-rtx-pro-6000.jpg'
     },
