@@ -130,3 +130,18 @@
 @media (max-width:1180px){.hermes-community__roadmap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hermes-community__hero-grid,.hermes-community__panels,.hermes-devroom__panels{grid-template-columns:1fr}.hermes-devroom__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:980px){.hermes-editorial__article{grid-template-columns:1fr}}
 @media (max-width:767px){.hermes-community{padding-top:28px}.hermes-community__shell,.hermes-editorial__shell{padding:22px 18px;border-radius:24px}.hermes-community__header h2{font-size:2rem}.hermes-community__roadmap-grid,.hermes-devroom__grid,.hermes-devroom__meta-grid,.community-preview__grid{grid-template-columns:1fr}.hermes-devroom__log-line{grid-template-columns:72px 1fr;gap:10px}.hermes-editorial{padding-top:26px}.hermes-editorial__prose{font-size:16px;line-height:1.78}.agentes-mobile-hero-chart__bars{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+
+.hermes-editorial--conversation{padding-top:12px}
+.hermes-conversation{display:block}
+.hermes-conversation__topic{margin:36px 0 16px;padding-bottom:10px;border-bottom:1px solid rgba(255,214,90,.18);color:#ffe08a;font-size:1.25rem}
+.hermes-conversation__topic:first-child{margin-top:0}
+.hermes-conversation__turn{display:grid;gap:14px;margin-bottom:24px}
+.hermes-conversation__question,.hermes-conversation__answer{padding:20px;border-radius:20px;border:1px solid rgba(255,255,255,.06)}
+.hermes-conversation__question{margin-left:7%;background:rgba(255,214,90,.06)}
+.hermes-conversation__answer{margin-right:7%;background:rgba(0,216,154,.055)}
+.hermes-conversation__question>span,.hermes-conversation__answer>span{display:block;margin-bottom:9px;color:#8fc8b0;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.hermes-conversation__question>span{color:#ffe08a}
+.hermes-conversation p{margin:0 0 14px;color:#e5f6ee;line-height:1.75}
+.hermes-conversation p:last-child{margin-bottom:0}
+.hermes-conversation a{color:#7ce9c5;overflow-wrap:anywhere}
+@media (max-width:767px){.hermes-conversation__question,.hermes-conversation__answer{margin-left:0;margin-right:0;padding:16px}.hermes-conversation__topic{margin-top:28px}}
